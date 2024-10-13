@@ -1,3 +1,4 @@
+import 'package:fake_wallet/screens/database.dart';
 import 'package:fake_wallet/screens/home.dart';
 import 'package:flutter/material.dart';
 
@@ -14,7 +15,7 @@ class MyApp extends StatelessWidget {
       title: 'Fake Wallet',
       theme: ThemeData(
         colorScheme:
-            ColorScheme.fromSeed(seedColor: Colors.lightBlueAccent.shade700),
+            ColorScheme.fromSeed(seedColor: Colors.blue.shade900),
         useMaterial3: true,
       ),
       home: DefaultTabController(
@@ -31,14 +32,14 @@ class MyApp extends StatelessWidget {
           body: const TabBarView(
             children: [
               Home(),
-              Home(),
+              Database(),
               Home(),
             ],
           ),
           bottomNavigationBar: const TabBar(
             tabs: [
               Tab(icon: Icon(Icons.home)),
-              Tab(icon: Icon(Icons.abc_outlined)),
+              Tab(icon: Icon(Icons.data_usage_rounded)),
               Tab(icon: Icon(Icons.settings)),
             ],
           ),
