@@ -1,97 +1,84 @@
-import 'dart:math';
-
 import 'package:fake_wallet/database.dart';
 import 'package:fake_wallet/models/expensive.dart';
+import 'package:fake_wallet/widgets/chart.dart';
 import 'package:fake_wallet/widgets/expensive_form.dart';
 import 'package:fake_wallet/widgets/header.dart';
-import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class Home extends StatefulWidget {
-  const Home({super.key});
+  final AppDatabase database;
+  const Home({super.key, required this.database});
 
   @override
   State<Home> createState() => _HomeState();
 }
 
 class _HomeState extends State<Home> {
-
   int touchedIndex = 0;
-  final database = AppDatabase();
 
-  List<ExpenseData> lista = [];
+  List<ExpenseData> expenses = [];
+  List<CategoryData> categories = [];
+  List<Map<String, dynamic>> finalList = [];
 
-  void listAllExpenses() async {
-    var list  = await database.select(database.expense).get();
+  Future<void> listAllExpenses() async {
+    var list = await widget.database.select(widget.database.expense).get();
     setState(() {
-      lista = list;
+      expenses = list;
     });
   }
 
-  void listAllCategories() async {
-    await database.select(database.category).get();
-  }
-
-  void insertCategory() async {
-    await database
-        .into(database.category)
-        .insert(CategoryCompanion.insert(description: '', icon: ''));
+  Future<void> listAllCategories() async {
+    var list = await widget.database.select(widget.database.category).get();
+    setState(() {
+      categories = list;
+    });
   }
 
   void insertExpense(Expensive expensive) async {
-    await database.into(database.expense).insert(ExpenseCompanion.insert(
+    await widget.database.into(widget.database.expense).insert(ExpenseCompanion.insert(
         title: expensive.title,
         name: expensive.name,
-        value: double.parse(expensive.value.replaceAll(RegExp(r"[^\d.]+"),'')),
+        value: double.parse(expensive.value.replaceFirst(',', '.').replaceAll(RegExp(r"[^\d.]+"), '')),
         fixed: expensive.fixed,
         createdAt: DateTime.now(),
-        expenseDate: DateTime.now().subtract(Duration(days: 1)),
-        category: 1));
+        expenseDate:  DateFormat('dd/MM/yyyy').parse(expensive.expenseDate),
+        category: expensive.category));
   }
 
+  void calculateCharts() {
+    var list = categories.map((category) {
+      var expensesPerCategory =
+          expenses.where((expense) => expense.category == category.id).toList();
+      var totalExpensesPerCategory = expensesPerCategory.length;
+      var totalValueExpensesPerCategory = expensesPerCategory.length > 0 ? expensesPerCategory
+          .map((expense) => expense.value)
+          .reduce((current, preview) => (current ?? 0) + (preview ?? 0)) : 0;
+      var totalExpenses = expenses.length;
+
+      return {
+        'id': category.id,
+        'description': category.description,
+        'icon': category.icon,
+        'total': totalExpensesPerCategory,
+        'totalValue': totalValueExpensesPerCategory,
+        'percentage': (totalExpensesPerCategory * 100) / totalExpenses
+      };
+    }).toList();
+
+    print(list);
+
+    setState(() {
+      finalList = list;
+    });
+  }
 
   @override
-  void initState(){
+  void initState() {
+    listAllCategories()
+        .then((c) => listAllExpenses().then((c) => calculateCharts()));
     super.initState();
-    listAllExpenses();
   }
-
-
-
-  List<PieChartSectionData> showingSections() {
-    return lista.map((i) {
-      final isTouched = lista.indexOf(i) == touchedIndex;
-      final fontSize = isTouched ? 20.0 : 16.0;
-      final radius = isTouched ? 110.0 : 100.0;
-      final widgetSize = isTouched ? 55.0 : 40.0;
-      const shadows = [Shadow(color: Colors.black, blurRadius: 2)];
-
-      return PieChartSectionData(
-        color: isTouched ? Colors.deepPurple : Colors.deepOrange,
-        value: isTouched ? 40 : 60,
-        title: isTouched ? '40%' : '60%',
-        radius: radius,
-        titleStyle: TextStyle(
-          fontSize: fontSize,
-          fontWeight: FontWeight.bold,
-          color: const Color(0xffffffff),
-          shadows: shadows,
-        ),
-        badgeWidget: Container(
-          padding: EdgeInsets.all(5),
-          decoration: const BoxDecoration(
-              color: Colors.black87,
-              borderRadius: BorderRadius.all(Radius.circular(20))),
-          child: const Icon(
-            Icons.car_rental_sharp,
-            color: Colors.white,
-          ),
-        ),
-        badgePositionPercentageOffset: .98,
-      );
-    }).toList();
-  }
-
 
   @override
   Widget build(BuildContext context) {
@@ -102,38 +89,15 @@ class _HomeState extends State<Home> {
             const Header(),
             SizedBox(
               height: 250,
-              child: PieChart(
-                PieChartData(
-                  pieTouchData: PieTouchData(
-                    touchCallback: (FlTouchEvent event, pieTouchResponse) {
-                      /* setState(() {
-                      if (!event.isInterestedForInteractions ||
-                          pieTouchResponse == null ||
-                          pieTouchResponse.touchedSection == null) {
-                        touchedIndex = -1;
-                        return;
-                      }
-                      touchedIndex =
-                          pieTouchResponse.touchedSection!.touchedSectionIndex;
-                    });
-                    */
-                    },
-                  ),
-                  borderData: FlBorderData(
-                    show: false,
-                  ),
-                  sectionsSpace: 0,
-                  centerSpaceRadius: 0,
-                  sections: showingSections(),
-                ),
-                swapAnimationDuration: Duration(seconds: 5),
+              child: Chart(
+                expenses: finalList,
               ),
             ),
-            Divider(height: 5),
+            const Divider(height: 5),
             SizedBox(
               height: 250,
               child: ListView.builder(
-                  itemCount: lista.length,
+                  itemCount: expenses.length,
                   scrollDirection: Axis.vertical,
                   itemBuilder: (BuildContext context, int indice) {
                     return Container(
@@ -142,9 +106,9 @@ class _HomeState extends State<Home> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: [
-                          Icon(Icons.webhook_rounded),
-                          Text(lista[indice].title),
-                          Text(lista[indice].name),
+                          Text(expenses[indice].value.toString()),
+                          Text(expenses[indice].title),
+                          Text(expenses[indice].expenseDate.toString()),
                         ],
                       ),
                     );
@@ -159,9 +123,11 @@ class _HomeState extends State<Home> {
                 builder: (builder) {
                   return AlertDialog(
                     title: const Text('New Expense'),
-                    content: ExpensiveForm(onSave: (ex) {
-                      insertExpense(ex);
-                    }),
+                    content: ExpensiveForm(
+                        onSave: (ex) {
+                          insertExpense(ex);
+                        },
+                        categories: categories),
                   );
                 });
           },
