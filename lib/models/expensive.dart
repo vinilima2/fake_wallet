@@ -4,6 +4,7 @@ class Expensive {
   String _expenseDate = '';
   String _value = '';
   bool _fixed = false;
+  int _category = 0;
 
   String get title => _title;
 
@@ -33,5 +34,11 @@ class Expensive {
 
   set name(String value) {
     _name = value;
+  }
+
+  int get category => _category;
+
+  set category(int value) {
+    _category = value;
   }
 }

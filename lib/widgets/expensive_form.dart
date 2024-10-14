@@ -1,3 +1,4 @@
+import 'package:fake_wallet/database.dart';
 import 'package:fake_wallet/formatters/CurrencyInputFormatter.dart';
 import 'package:fake_wallet/formatters/DateInputFormatter.dart';
 import 'package:fake_wallet/models/expensive.dart';
@@ -6,8 +7,10 @@ import 'package:flutter/services.dart';
 
 class ExpensiveForm extends StatefulWidget {
   final Function(Expensive) onSave;
+  final List<CategoryData> categories;
 
-  const ExpensiveForm({super.key, required this.onSave});
+  const ExpensiveForm(
+      {super.key, required this.onSave, required this.categories});
 
   @override
   State<StatefulWidget> createState() => _ExpensiveFormState();
@@ -26,23 +29,25 @@ class _ExpensiveFormState extends State<ExpensiveForm> {
           // color: Colors.white,
           child: Column(
             children: [
-              DropdownMenu<String>(
+              DropdownMenu<CategoryData>(
                 width: 250,
-                initialSelection: '1',
+                initialSelection: null,
                 requestFocusOnTap: false,
                 label: const Text('Category'),
-                onSelected: (String? color) {
-                  print(color);
+                onSelected: (CategoryData? category) {
+                  expensive.category = category!.id;
                 },
-                dropdownMenuEntries:
-                    ['1', '2'].map<DropdownMenuEntry<String>>((String color) {
-                  return DropdownMenuEntry<String>(
-                    value: color,
-                    label: color,
+                dropdownMenuEntries: widget.categories
+                    .map<DropdownMenuEntry<CategoryData>>(
+                        (CategoryData category) {
+                  return DropdownMenuEntry<CategoryData>(
+                    value: category,
+                    label: category.description,
                   );
                 }).toList(),
               ),
               TextFormField(
+                textCapitalization: TextCapitalization.characters,
                 initialValue: expensive.title,
                 onChanged: (text) => expensive.title = text,
                 maxLength: 50,
@@ -50,6 +55,7 @@ class _ExpensiveFormState extends State<ExpensiveForm> {
                     const InputDecoration(counterText: '', labelText: 'Title'),
               ),
               TextFormField(
+                textCapitalization: TextCapitalization.characters,
                 initialValue: expensive.name,
                 onChanged: (text) => expensive.name = text,
                 decoration: const InputDecoration(labelText: 'Description'),
@@ -88,7 +94,7 @@ class _ExpensiveFormState extends State<ExpensiveForm> {
                           expensive.fixed = value!;
                         });
                       }),
-                  Text('Fixed')
+                  const Text('Fixed')
                 ],
               ),
               FilledButton(
