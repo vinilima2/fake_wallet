@@ -1,3 +1,4 @@
+import 'package:drift/drift.dart' as drift;
 import 'package:fake_wallet/database.dart';
 import 'package:fake_wallet/models/expensive.dart';
 import 'package:fake_wallet/widgets/chart.dart';
@@ -20,11 +21,21 @@ class _HomeState extends State<Home> {
   List<ExpenseData> expenses = [];
   List<CategoryData> categories = [];
   List<Map<String, dynamic>> finalList = [];
+  String monthAndYear =
+      "${DateTime.now().month.toString().padLeft(2, '0')}/${DateTime.now().year.toString()}";
 
   Future<void> listAllExpenses() async {
-    var list = await widget.database.select(widget.database.expense).get();
-    setState(() {
-      expenses = list;
+    List<String> splitDate = monthAndYear.split('/');
+    print(splitDate);
+    var listd = await (widget.database.select(widget.database.expense)
+          ..where((tbl) =>
+              tbl.expenseDate.month.equals(int.parse(splitDate[0])) &
+              tbl.expenseDate.year.equals(int.parse(splitDate[1]))))
+        .watch()
+        .listen((list) {
+      setState(() {
+        expenses = list;
+      });
     });
   }
 
@@ -36,14 +47,22 @@ class _HomeState extends State<Home> {
   }
 
   void insertExpense(Expensive expensive) async {
-    await widget.database.into(widget.database.expense).insert(ExpenseCompanion.insert(
-        title: expensive.title,
-        name: expensive.name,
-        value: double.parse(expensive.value.replaceFirst(',', '.').replaceAll(RegExp(r"[^\d.]+"), '')),
-        fixed: expensive.fixed,
-        createdAt: DateTime.now(),
-        expenseDate:  DateFormat('dd/MM/yyyy').parse(expensive.expenseDate),
-        category: expensive.category));
+    print(DateFormat('dd/MM/yyyy').parse(expensive.expenseDate));
+    print(expensive.expenseDate);
+    await widget.database.into(widget.database.expense).insert(
+        ExpenseCompanion.insert(
+            title: expensive.title,
+            name: expensive.name,
+            value: double.parse(expensive.value
+                .replaceFirst(',', '.')
+                .replaceAll(RegExp(r"[^\d.]+"), '')),
+            fixed: expensive.fixed,
+            createdAt: DateTime.now(),
+            expenseDate: DateFormat('dd/MM/yyyy').parse(expensive.expenseDate),
+            category: expensive.category));
+
+    Navigator.of(context).pop();
+    listAllExpenses().then((c) => calculateCharts());
   }
 
   void calculateCharts() {
@@ -51,9 +70,11 @@ class _HomeState extends State<Home> {
       var expensesPerCategory =
           expenses.where((expense) => expense.category == category.id).toList();
       var totalExpensesPerCategory = expensesPerCategory.length;
-      var totalValueExpensesPerCategory = expensesPerCategory.length > 0 ? expensesPerCategory
-          .map((expense) => expense.value)
-          .reduce((current, preview) => (current ?? 0) + (preview ?? 0)) : 0;
+      var totalValueExpensesPerCategory = expensesPerCategory.isNotEmpty
+          ? expensesPerCategory
+              .map((expense) => expense.value)
+              .reduce((current, preview) => (current ?? 0) + (preview ?? 0))
+          : 0;
       var totalExpenses = expenses.length;
 
       return {
@@ -65,8 +86,6 @@ class _HomeState extends State<Home> {
         'percentage': (totalExpensesPerCategory * 100) / totalExpenses
       };
     }).toList();
-
-    print(list);
 
     setState(() {
       finalList = list;
@@ -86,7 +105,12 @@ class _HomeState extends State<Home> {
         body: SingleChildScrollView(
             child: Column(
           children: [
-            const Header(),
+            Header(callback: (p0) {
+              setState(() {
+                monthAndYear = p0;
+              });
+              listAllExpenses().then((c) => calculateCharts());
+            }),
             SizedBox(
               height: 250,
               child: Chart(
@@ -108,7 +132,8 @@ class _HomeState extends State<Home> {
                         children: [
                           Text(expenses[indice].value.toString()),
                           Text(expenses[indice].title),
-                          Text(expenses[indice].expenseDate.toString()),
+                          Text(DateFormat('dd/MM/yyyy')
+                              .format(expenses[indice].expenseDate)),
                         ],
                       ),
                     );
