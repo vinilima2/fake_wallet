@@ -2,48 +2,47 @@ import 'package:fake_wallet/database.dart';
 import 'package:flutter/material.dart';
 
 class Database extends StatelessWidget {
-    final AppDatabase database;
+  final AppDatabase database;
   const Database({super.key, required this.database});
 
   @override
   Widget build(BuildContext context) {
-    final List<IconData> icons = [
-      Icons.theaters,
-      Icons.car_repair,
-      Icons.bolt,
-      Icons.water_drop_rounded,
-      Icons.fastfood,
-      Icons.bus_alert,
-      Icons.credit_card,
-      Icons.home,
-      Icons.local_gas_station,
-      Icons.gas_meter,
-      Icons.sim_card,
-      Icons.school,
-      Icons.coffee,
-      Icons.help,
-      Icons.health_and_safety
+    final List<Map<IconData, String>> icons = [
+      {Icons.theaters: "Theater"},
+      {Icons.car_repair: "Car Repair"},
+      {Icons.bolt: "Energy"},
+      {Icons.water_drop_rounded: "Water"},
+      {Icons.fastfood: "FastFood"},
+      {Icons.bus_alert: "Bus"},
+      {Icons.credit_card: "Credit Card"},
+      {Icons.home: "Home"},
+      {Icons.local_gas_station: "Fuel"},
+      {Icons.gas_meter: "Gas"},
+      {Icons.sim_card: "Phone"},
+      {Icons.school: "School"},
+      {Icons.coffee: "Coffee"},
+      {Icons.help: "Another"},
+      {Icons.health_and_safety: "Health"}
     ];
 
     const iconMap = {
-      0xe655: 'theaters',
-      0xe13d: 'car_repair',
-      0xe0ee: 'bolt',
-      0xf03b4: 'water_drop_rounded',
-      0xe25a: 'fastfood',
-      0xe11a: 'bus_alert',
-      0xe19f: 'credit_card',
-      0xe318: 'home',
-      0xe394: 'local_gas_station',
-      0xf07a4: 'gas_meter',
-      0xe5b7: 'sim_card',
-      0xe559: 'school',
-      0xe178: 'coffee',
-      0xe309: 'help',
-      0xe305: 'health_and_safety'
+      0xe655: 'Theater',
+      0xe13d: 'Car Repair',
+      0xe0ee: 'Energy',
+      0xf03b4: 'Water',
+      0xe25a: 'FastFood',
+      0xe11a: 'Bus',
+      0xe19f: 'Credit Card',
+      0xe318: 'Home',
+      0xe394: 'Fuel',
+      0xf07a4: 'Gas',
+      0xe5b7: 'Phone',
+      0xe559: 'School',
+      0xe178: 'Coffee',
+      0xe309: 'Another',
+      0xe305: 'Health'
     };
 
-  
     void insertCategory(String description, String icon) async {
       await database.into(database.category).insert(
           CategoryCompanion.insert(description: description, icon: icon));
@@ -52,7 +51,7 @@ class Database extends StatelessWidget {
 
     String description = '';
     String icon = '';
-    IconData? iconData = null;
+    IconData? iconData;
 
     return Scaffold(
         floatingActionButton: FloatingActionButton(
@@ -61,7 +60,7 @@ class Database extends StatelessWidget {
             context: context,
             builder: (builder) {
               return AlertDialog(
-                title: Text('New Category'),
+                title: const Text('New Category'),
                 content: Form(
                   child: SingleChildScrollView(
                     child: Container(
@@ -83,17 +82,19 @@ class Database extends StatelessWidget {
                             },
                             dropdownMenuEntries: icons
                                 .map<DropdownMenuEntry<IconData>>(
-                                    (IconData color) {
+                                    (Map<IconData, String> color) {
                               return DropdownMenuEntry<IconData>(
-                                  value: color,
-                                  label: iconMap[color.codePoint]!,
-                                  labelWidget: Row(children: [
-                                    Icon(color)
-                                  ])
-                                  // style: MenuItemButton.styleFrom(
-                                  //   foregroundColor: Colors.red,
-                                  // ),
-                                  );
+                                value: color.keys.first,
+                                label: iconMap[color.keys.first.codePoint]!,
+                                labelWidget: Row(children: [
+                                  Icon(color.keys.first),
+                                  Text(color.values.first)
+                                ]),
+
+                                // style: MenuItemButton.styleFrom(
+                                //   foregroundColor: Colors.red,
+                                // ),
+                              );
                             }).toList(),
                           ),
                           TextFormField(

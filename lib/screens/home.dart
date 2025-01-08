@@ -6,6 +6,7 @@ import 'package:fake_wallet/widgets/expensive_form.dart';
 import 'package:fake_wallet/widgets/header.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:fake_wallet/utils/date_utils.dart';
 
 class Home extends StatefulWidget {
   final AppDatabase database;
@@ -21,21 +22,23 @@ class _HomeState extends State<Home> {
   List<ExpenseData> expenses = [];
   List<CategoryData> categories = [];
   List<Map<String, dynamic>> finalList = [];
-  String monthAndYear =
-      "${DateTime.now().month.toString().padLeft(2, '0')}/${DateTime.now().year.toString()}";
+  String monthAndYear = DateUtil.now();
 
-  Future<void> listAllExpenses() async {
-    List<String> splitDate = monthAndYear.split('/');
-    print(splitDate);
-    var listd = await (widget.database.select(widget.database.expense)
-          ..where((tbl) =>
-              tbl.expenseDate.month.equals(int.parse(splitDate[0])) &
-              tbl.expenseDate.year.equals(int.parse(splitDate[1]))))
+  Future<void> listAllExpenses(String? date) async {
+    List<String> splitDate = (date ?? monthAndYear).split('/');
+    (widget.database.select(widget.database.expense)
+          ..where((tbl) {
+            return tbl.expenseDate.month.equals(int.parse(splitDate[0])) &
+                tbl.expenseDate.year.equals(int.parse(splitDate[1]));
+          }))
         .watch()
         .listen((list) {
       setState(() {
         expenses = list;
       });
+      calculateCharts();
+    }, onDone: () {
+      reassemble();
     });
   }
 
@@ -47,8 +50,6 @@ class _HomeState extends State<Home> {
   }
 
   void insertExpense(Expensive expensive) async {
-    print(DateFormat('dd/MM/yyyy').parse(expensive.expenseDate));
-    print(expensive.expenseDate);
     await widget.database.into(widget.database.expense).insert(
         ExpenseCompanion.insert(
             title: expensive.title,
@@ -62,10 +63,17 @@ class _HomeState extends State<Home> {
             category: expensive.category));
 
     Navigator.of(context).pop();
-    listAllExpenses().then((c) => calculateCharts());
+    listAllExpenses(null);
   }
 
   void calculateCharts() {
+    if (expenses.length == 0) {
+      setState(() {
+        finalList = [];
+      });
+      return;
+    }
+
     var list = categories.map((category) {
       var expensesPerCategory =
           expenses.where((expense) => expense.category == category.id).toList();
@@ -83,7 +91,8 @@ class _HomeState extends State<Home> {
         'icon': category.icon,
         'total': totalExpensesPerCategory,
         'totalValue': totalValueExpensesPerCategory,
-        'percentage': (totalExpensesPerCategory * 100) / totalExpenses
+        'percentage': ((totalExpensesPerCategory * 100) /
+            (totalExpenses == 0 ? 1 : totalExpenses)).truncateToDouble()
       };
     }).toList();
 
@@ -94,8 +103,7 @@ class _HomeState extends State<Home> {
 
   @override
   void initState() {
-    listAllCategories()
-        .then((c) => listAllExpenses().then((c) => calculateCharts()));
+    listAllCategories().then((c) => listAllExpenses(null));
     super.initState();
   }
 
@@ -106,10 +114,7 @@ class _HomeState extends State<Home> {
             child: Column(
           children: [
             Header(callback: (p0) {
-              setState(() {
-                monthAndYear = p0;
-              });
-              listAllExpenses().then((c) => calculateCharts());
+              listAllExpenses(p0);
             }),
             SizedBox(
               height: 250,
@@ -125,15 +130,33 @@ class _HomeState extends State<Home> {
                   scrollDirection: Axis.vertical,
                   itemBuilder: (BuildContext context, int indice) {
                     return Container(
-                      margin: EdgeInsets.only(bottom: 5),
-                      decoration: BoxDecoration(border: Border.all()),
+                      margin: const EdgeInsets.only(bottom: 5),
+                      color: Colors.blueAccent.shade400,
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: [
-                          Text(expenses[indice].value.toString()),
-                          Text(expenses[indice].title),
-                          Text(DateFormat('dd/MM/yyyy')
-                              .format(expenses[indice].expenseDate)),
+                          Text(
+                            NumberFormat.simpleCurrency(locale: "pt_Br")
+                                .format(expenses[indice].value),
+                            style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white),
+                          ),
+                          Text(
+                            expenses[indice].name,
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w300),
+                          ),
+                          Text(
+                              DateFormat('dd/MM/yyyy')
+                                  .format(expenses[indice].expenseDate),
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              )),
                         ],
                       ),
                     );
