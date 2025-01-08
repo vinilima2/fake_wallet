@@ -12,21 +12,21 @@ class Chart extends StatefulWidget {
 
 class _ChartState extends State<Chart> {
   static const iconMap = {
-    'theaters': 0xe655,
-    'car_repair': 0xe13d,
-    'bolt': 0xe0ee,
-    'water_drop_rounded': 0xf03b4,
-    'fastfood': 0xe25a,
-    'bus_alert': 0xe11a,
-    'credit_card': 0xe19f,
-    'home': 0xe318,
-    'local_gas_station': 0xe394,
-    'gas_meter': 0xf07a4,
-    'sim_card': 0xe5b7,
-    'school': 0xe559,
-    'coffee': 0xe178,
-    'help': 0xe309,
-    'health_and_safety': 0xe305
+    'Theater': 0xe655,
+    'Car Repair': 0xe13d,
+    'Energy': 0xe0ee,
+    'Water': 0xf03b4,
+    'FastFood': 0xe25a,
+    'Bus': 0xe11a,
+    'Credit Card': 0xe19f,
+    'Home': 0xe318,
+    'Fuel': 0xe394,
+    'Gas': 0xf07a4,
+    'Phone': 0xe5b7,
+    'School': 0xe559,
+    'Coffee': 0xe178,
+    'Another': 0xe309,
+    'Health': 0xe305
   };
 
   int touchedIndex = -1;
@@ -56,7 +56,7 @@ class _ChartState extends State<Chart> {
               color: Colors.black87,
               borderRadius: BorderRadius.all(Radius.circular(20))),
           child: Icon(
-            IconData(iconMap[i['icon']]! as int),
+            IconData(iconMap[i['icon']]! as int, fontFamily: 'MaterialIcons'),
             color: Colors.white,
           ),
         ),
@@ -67,7 +67,7 @@ class _ChartState extends State<Chart> {
 
   @override
   Widget build(BuildContext context) {
-    return PieChart(
+    return widget.expenses.length > 0 ? PieChart(
       PieChartData(
         pieTouchData: PieTouchData(
           touchCallback: (FlTouchEvent event, pieTouchResponse) {
@@ -92,6 +92,6 @@ class _ChartState extends State<Chart> {
         sections: showingSections(),
       ),
       swapAnimationDuration: Duration(seconds: 5),
-    );
+    ) : Image.asset('assets/pork.gif');
   }
 }
