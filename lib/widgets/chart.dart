@@ -29,18 +29,32 @@ class _ChartState extends State<Chart> {
     'Health': 0xe305
   };
 
+  static const List<MaterialColor> colors = [
+    Colors.green,
+    Colors.amber,
+    Colors.red,
+    Colors.orange,
+    Colors.blue,
+    Colors.pink,
+    Colors.grey,
+    Colors.cyan,
+    Colors.indigo,
+    Colors.purple,
+    Colors.brown
+  ];
+
   int touchedIndex = -1;
 
   List<PieChartSectionData> showingSections() {
     return widget.expenses.map((i) {
       final isTouched = widget.expenses.indexOf(i) == touchedIndex;
-      final fontSize = isTouched ? 20.0 : 16.0;
-      final radius = isTouched ? 110.0 : 100.0;
-      final widgetSize = isTouched ? 55.0 : 40.0;
+      final fontSize = isTouched ? 30.0 : 16.0;
+      final radius = isTouched ? 115.0 : 100.0;
+      final widgetSize = isTouched ? 60.0 : 40.0;
       const shadows = [Shadow(color: Colors.black, blurRadius: 2)];
 
       return PieChartSectionData(
-        color: isTouched ? Colors.deepPurple : Colors.deepOrange,
+        color: isTouched ? Colors.black : colors[widget.expenses.indexOf(i)],
         value: i['percentage'],
         title: i['percentage'].toString() + '%',
         radius: radius,
@@ -52,8 +66,8 @@ class _ChartState extends State<Chart> {
         ),
         badgeWidget: Container(
           padding: EdgeInsets.all(5),
-          decoration: const BoxDecoration(
-              color: Colors.black87,
+          decoration: BoxDecoration(
+              color: Colors.blue.shade900,
               borderRadius: BorderRadius.all(Radius.circular(20))),
           child: Icon(
             IconData(iconMap[i['icon']]! as int, fontFamily: 'MaterialIcons'),
@@ -67,31 +81,32 @@ class _ChartState extends State<Chart> {
 
   @override
   Widget build(BuildContext context) {
-    return widget.expenses.length > 0 ? PieChart(
-      PieChartData(
-        pieTouchData: PieTouchData(
-          touchCallback: (FlTouchEvent event, pieTouchResponse) {
-            /* setState(() {
-                      if (!event.isInterestedForInteractions ||
-                          pieTouchResponse == null ||
-                          pieTouchResponse.touchedSection == null) {
-                        touchedIndex = -1;
-                        return;
-                      }
-                      touchedIndex =
-                          pieTouchResponse.touchedSection!.touchedSectionIndex;
-                    });
-                    */
-          },
-        ),
-        borderData: FlBorderData(
-          show: false,
-        ),
-        sectionsSpace: 0,
-        centerSpaceRadius: 0,
-        sections: showingSections(),
-      ),
-      swapAnimationDuration: Duration(seconds: 5),
-    ) : Image.asset('assets/pork.gif');
+    return widget.expenses.length > 0
+        ? PieChart(
+            PieChartData(
+              pieTouchData: PieTouchData(
+                touchCallback: (FlTouchEvent event, pieTouchResponse) {
+                  setState(() {
+                    if (!event.isInterestedForInteractions ||
+                        pieTouchResponse == null ||
+                        pieTouchResponse.touchedSection == null) {
+                      touchedIndex = -1;
+                      return;
+                    }
+                    touchedIndex =
+                        pieTouchResponse.touchedSection!.touchedSectionIndex;
+                  });
+                },
+              ),
+              borderData: FlBorderData(
+                show: false,
+              ),
+              sectionsSpace: 0,
+              centerSpaceRadius: 0,
+              sections: showingSections(),
+            ),
+            swapAnimationDuration: Duration(seconds: 3),
+          )
+        : Image.asset('assets/pork.gif');
   }
 }
