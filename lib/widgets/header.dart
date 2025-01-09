@@ -33,7 +33,7 @@ class _HeaderState extends State<Header> {
         ),
         Text(
           literal(),
-          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+          style:  TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.blue.shade900),
         ),
         IconButton(
           icon:

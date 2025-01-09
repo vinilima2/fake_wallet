@@ -55,6 +55,7 @@ class _HomeState extends State<Home> {
             title: expensive.title,
             name: expensive.name,
             value: double.parse(expensive.value
+                .replaceAll('.', '')
                 .replaceFirst(',', '.')
                 .replaceAll(RegExp(r"[^\d.]+"), '')),
             fixed: expensive.fixed,
@@ -92,7 +93,8 @@ class _HomeState extends State<Home> {
         'total': totalExpensesPerCategory,
         'totalValue': totalValueExpensesPerCategory,
         'percentage': ((totalExpensesPerCategory * 100) /
-            (totalExpenses == 0 ? 1 : totalExpenses)).truncateToDouble()
+                (totalExpenses == 0 ? 1 : totalExpenses))
+            .truncateToDouble()
       };
     }).toList();
 
@@ -124,17 +126,27 @@ class _HomeState extends State<Home> {
             ),
             const Divider(height: 5),
             SizedBox(
-              height: 250,
+              height: 750,
               child: ListView.builder(
                   itemCount: expenses.length,
                   scrollDirection: Axis.vertical,
                   itemBuilder: (BuildContext context, int indice) {
                     return Container(
-                      margin: const EdgeInsets.only(bottom: 5),
-                      color: Colors.blueAccent.shade400,
+                      padding: const EdgeInsets.all(5),
+                      margin: const EdgeInsets.fromLTRB(10, 0, 10, 10),
+                      decoration: BoxDecoration(
+                          color: Colors.blue.shade900,
+                          borderRadius:
+                              const BorderRadius.all(Radius.circular(15))),
                       child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
+                          Text(
+                            "${expenses[indice].name} - ${expenses[indice].name} - ${DateFormat('dd/MM/yyyy').format(expenses[indice].expenseDate)}",
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w300),
+                          ),
                           Text(
                             NumberFormat.simpleCurrency(locale: "pt_Br")
                                 .format(expenses[indice].value),
@@ -143,20 +155,6 @@ class _HomeState extends State<Home> {
                                 fontWeight: FontWeight.bold,
                                 color: Colors.white),
                           ),
-                          Text(
-                            expenses[indice].name,
-                            style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.w300),
-                          ),
-                          Text(
-                              DateFormat('dd/MM/yyyy')
-                                  .format(expenses[indice].expenseDate),
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                              )),
                         ],
                       ),
                     );
@@ -165,6 +163,8 @@ class _HomeState extends State<Home> {
           ],
         )),
         floatingActionButton: FloatingActionButton(
+          backgroundColor: Colors.blueAccent,
+          shape: CircleBorder(),
           onPressed: () {
             showDialog(
                 context: context,
