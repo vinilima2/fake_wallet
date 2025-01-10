@@ -68,33 +68,35 @@ class _HomeState extends State<Home> {
   }
 
   void calculateCharts() {
-    if (expenses.length == 0) {
+    if (expenses.isEmpty) {
       setState(() {
         finalList = [];
       });
       return;
     }
 
+    var totalValueExpenses = expenses
+        .map((expense) => expense.value)
+        .reduce((current, preview) => (current) + (preview));
+
     var list = categories.map((category) {
       var expensesPerCategory =
           expenses.where((expense) => expense.category == category.id).toList();
-      var totalExpensesPerCategory = expensesPerCategory.length;
+
       var totalValueExpensesPerCategory = expensesPerCategory.isNotEmpty
           ? expensesPerCategory
               .map((expense) => expense.value)
-              .reduce((current, preview) => (current ?? 0) + (preview ?? 0))
+              .reduce((current, preview) => (current) + (preview))
           : 0;
-      var totalExpenses = expenses.length;
+
+      var percentage =
+          (totalValueExpensesPerCategory * 100) / (totalValueExpenses);
 
       return {
         'id': category.id,
         'description': category.description,
         'icon': category.icon,
-        'total': totalExpensesPerCategory,
-        'totalValue': totalValueExpensesPerCategory,
-        'percentage': ((totalExpensesPerCategory * 100) /
-                (totalExpenses == 0 ? 1 : totalExpenses))
-            .truncateToDouble()
+        'percentage': percentage
       };
     }).toList();
 
@@ -119,52 +121,82 @@ class _HomeState extends State<Home> {
               listAllExpenses(p0);
             }),
             SizedBox(
-              height: 250,
+              height: MediaQuery.sizeOf(context).height / 4,
               child: Chart(
                 expenses: finalList,
               ),
             ),
             const Divider(height: 5),
             SizedBox(
-              height: 750,
+              height: MediaQuery.sizeOf(context).height / 2,
               child: ListView.builder(
                   itemCount: expenses.length,
                   scrollDirection: Axis.vertical,
+                  shrinkWrap: true,
                   itemBuilder: (BuildContext context, int indice) {
                     return Container(
-                      padding: const EdgeInsets.all(5),
-                      margin: const EdgeInsets.fromLTRB(10, 0, 10, 10),
-                      decoration: BoxDecoration(
-                          color: Colors.blue.shade900,
-                          borderRadius:
-                              const BorderRadius.all(Radius.circular(15))),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            "${expenses[indice].name} - ${expenses[indice].name} - ${DateFormat('dd/MM/yyyy').format(expenses[indice].expenseDate)}",
-                            style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.w300),
-                          ),
-                          Text(
-                            NumberFormat.simpleCurrency(locale: "pt_Br")
-                                .format(expenses[indice].value),
-                            style: TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white),
-                          ),
-                        ],
-                      ),
-                    );
+                        decoration: const BoxDecoration(
+                            color: Color.fromARGB(248, 242, 252, 255),
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(12))),
+                        padding: const EdgeInsets.all(7),
+                        margin: const EdgeInsets.fromLTRB(10, 0, 10, 10),
+                        child: Column(
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  DateFormat('dd/MM/yyyy')
+                                      .format(expenses[indice].expenseDate),
+                                  style: TextStyle(
+                                      color: Colors.blue.shade900,
+                                      fontWeight: FontWeight.w500),
+                                ),
+                                Icon(Icons.chevron_right,
+                                    size: 15, color: Colors.blue.shade900)
+                              ],
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Flexible(
+                                  child: Text(
+                                    "${expenses[indice].name} - ${expenses[indice].name}",
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
+                                        fontSize: 14,
+                                        color: Colors.blue.shade900,
+                                        fontWeight: FontWeight.w400),
+                                  ),
+                                ),
+                                Text(
+                                  NumberFormat.simpleCurrency(locale: "pt_Br")
+                                      .format(expenses[indice].value),
+                                  style: TextStyle(
+                                      fontSize: 17,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.blue.shade900),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ));
                   }),
+            ),
+            Container(
+              color: Colors.blue.shade900,
+              height: MediaQuery.sizeOf(context).height / 5,
+              child: Row(
+                children: [Text('Total:'), Text('Valor')],
+              ),
             )
           ],
         )),
         floatingActionButton: FloatingActionButton(
           backgroundColor: Colors.blueAccent,
-          shape: CircleBorder(),
+          shape: const CircleBorder(),
           onPressed: () {
             showDialog(
                 context: context,
