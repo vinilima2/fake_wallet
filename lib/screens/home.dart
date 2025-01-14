@@ -23,6 +23,7 @@ class _HomeState extends State<Home> {
   List<CategoryData> categories = [];
   List<Map<String, dynamic>> finalList = [];
   String monthAndYear = DateUtil.now();
+  double totalValueExpenses = 0;
 
   Future<void> listAllExpenses(String? date) async {
     List<String> splitDate = (date ?? monthAndYear).split('/');
@@ -63,8 +64,32 @@ class _HomeState extends State<Home> {
             expenseDate: DateFormat('dd/MM/yyyy').parse(expensive.expenseDate),
             category: expensive.category));
 
+    if (expensive.fixed) {
+      insertFixedExpense(expensive);
+    }
+
     Navigator.of(context).pop();
     listAllExpenses(null);
+  }
+
+  void insertFixedExpense(Expensive expensive) async {
+    DateTime actualDateTime =
+        DateFormat('dd/MM/yyyy').parse(expensive.expenseDate);
+    for (int i = 1; i < 7; i++) {
+      await widget.database.into(widget.database.expense).insert(
+          ExpenseCompanion.insert(
+              title: expensive.title,
+              name: expensive.name,
+              value: double.parse(expensive.value
+                  .replaceAll('.', '')
+                  .replaceFirst(',', '.')
+                  .replaceAll(RegExp(r"[^\d.]+"), '')),
+              fixed: expensive.fixed,
+              createdAt: DateTime.now(),
+              expenseDate: actualDateTime.copyWith(
+                  day: 1, month: actualDateTime.month + i),
+              category: expensive.category));
+    }
   }
 
   void calculateCharts() {
@@ -75,9 +100,13 @@ class _HomeState extends State<Home> {
       return;
     }
 
-    var totalValueExpenses = expenses
+    var total = expenses
         .map((expense) => expense.value)
         .reduce((current, preview) => (current) + (preview));
+
+    setState(() {
+      totalValueExpenses = double.parse(total.toStringAsFixed(2));
+    });
 
     var list = categories.map((category) {
       var expensesPerCategory =
@@ -96,7 +125,7 @@ class _HomeState extends State<Home> {
         'id': category.id,
         'description': category.description,
         'icon': category.icon,
-        'percentage': percentage
+        'percentage': double.parse(percentage.toStringAsFixed(2))
       };
     }).toList();
 
@@ -187,9 +216,22 @@ class _HomeState extends State<Home> {
             ),
             Container(
               color: Colors.blue.shade900,
-              height: MediaQuery.sizeOf(context).height / 5,
+              height: 45,
+              padding: EdgeInsets.all(3),
               child: Row(
-                children: [Text('Total:'), Text('Valor')],
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text('Total:',
+                      style: TextStyle(color: Colors.white, fontSize: 18)),
+                  Text(
+                    NumberFormat.simpleCurrency(locale: 'pt-Br')
+                        .format(totalValueExpenses),
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 20),
+                  )
+                ],
               ),
             )
           ],
