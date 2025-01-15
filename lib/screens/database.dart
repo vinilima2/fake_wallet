@@ -1,5 +1,6 @@
 import 'package:fake_wallet/database.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class Database extends StatelessWidget {
   final AppDatabase database;
@@ -60,7 +61,7 @@ class Database extends StatelessWidget {
             context: context,
             builder: (builder) {
               return AlertDialog(
-                title: const Text('New Category'),
+                title:  Text(AppLocalizations.of(context)!.newCategory),
                 content: Form(
                   child: SingleChildScrollView(
                     child: Container(
@@ -75,7 +76,7 @@ class Database extends StatelessWidget {
                             enableFilter: false,
                             width: 250,
                             initialSelection: iconData,
-                            label: const Text('Icon'),
+                            label: Text(AppLocalizations.of(context)!.icon),
                             onSelected: (IconData? iconData) {
                               icon = iconMap[iconData?.codePoint]!;
                               iconData = iconData;
@@ -100,8 +101,8 @@ class Database extends StatelessWidget {
                           TextFormField(
                             onChanged: (text) => description = text,
                             maxLength: 50,
-                            decoration: const InputDecoration(
-                                counterText: '', labelText: 'Description'),
+                            decoration:  InputDecoration(
+                                counterText: '', labelText: AppLocalizations.of(context)!.description),
                           ),
                           Container(
                             height: 15,
@@ -110,7 +111,7 @@ class Database extends StatelessWidget {
                             onPressed: () {
                               insertCategory(description, icon);
                             },
-                            child: Text('Save'),
+                            child: Text(AppLocalizations.of(context)!.save),
                             style: ButtonStyle(
                                 fixedSize:
                                     MaterialStatePropertyAll(Size(1000, 50))),

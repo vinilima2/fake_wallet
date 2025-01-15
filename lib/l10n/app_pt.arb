@@ -1,0 +1,17 @@
+{
+   "newCategory": "Nova Categoria",
+   "icon":"Ícone",
+   "save":"Salvar",
+   "removeQuestion":"Deseja realmente apagar essa despesa?",
+   "yes":"Sim",
+   "no":"Não",
+   "total":"Total",
+   "newExpense":"Nova Despesa",
+   "fixed":"Fixo",
+   "category":"Categoria",
+   "attention": "Atenção",
+   "description": "Descrição",
+   "title":"Título",
+   "value":"Valor",
+   "expenseDate":"Data da Despesa"
+}

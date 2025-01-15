@@ -4,6 +4,7 @@ import 'package:fake_wallet/formatters/DateInputFormatter.dart';
 import 'package:fake_wallet/models/expensive.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class ExpensiveForm extends StatefulWidget {
   final Function(Expensive) onSave;
@@ -33,7 +34,7 @@ class _ExpensiveFormState extends State<ExpensiveForm> {
                 width: 250,
                 initialSelection: null,
                 requestFocusOnTap: false,
-                label: const Text('Category'),
+                label: Text(AppLocalizations.of(context)!.category),
                 onSelected: (CategoryData? category) {
                   expensive.category = category!.id;
                 },
@@ -52,13 +53,13 @@ class _ExpensiveFormState extends State<ExpensiveForm> {
                 onChanged: (text) => expensive.title = text,
                 maxLength: 50,
                 decoration:
-                    const InputDecoration(counterText: '', labelText: 'Title'),
+                    InputDecoration(counterText: '', labelText: AppLocalizations.of(context)!.title),
               ),
               TextFormField(
                 textCapitalization: TextCapitalization.characters,
                 initialValue: expensive.name,
                 onChanged: (text) => expensive.name = text,
-                decoration: const InputDecoration(labelText: 'Description'),
+                decoration: InputDecoration(labelText: AppLocalizations.of(context)!.description),
               ),
               Container(
                 height: 20,
@@ -72,7 +73,7 @@ class _ExpensiveFormState extends State<ExpensiveForm> {
                 ],
                 keyboardType:
                     const TextInputType.numberWithOptions(decimal: true),
-                decoration: const InputDecoration(labelText: 'Value'),
+                decoration: InputDecoration(labelText: AppLocalizations.of(context)!.value),
               ),
               TextFormField(
                 initialValue: expensive.expenseDate,
@@ -82,7 +83,7 @@ class _ExpensiveFormState extends State<ExpensiveForm> {
                   DateInputFormatter()
                 ],
                 keyboardType: TextInputType.datetime,
-                decoration: const InputDecoration(labelText: 'Expense Date'),
+                decoration: InputDecoration(labelText: AppLocalizations.of(context)!.expenseDate),
               ),
               Row(
                 children: [
@@ -94,14 +95,14 @@ class _ExpensiveFormState extends State<ExpensiveForm> {
                           expensive.fixed = value!;
                         });
                       }),
-                  const Text('Fixed')
+                  Text(AppLocalizations.of(context)!.fixed)
                 ],
               ),
               FilledButton(
                 onPressed: () {
                   widget.onSave(expensive);
                 },
-                child: Text('Save'),
+                child: Text(AppLocalizations.of(context)!.save),
                 style: ButtonStyle(
                     fixedSize: MaterialStatePropertyAll(Size(1000, 50))),
               )

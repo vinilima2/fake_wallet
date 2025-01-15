@@ -1,0 +1,17 @@
+{
+   "newCategory": "New Category",
+   "icon":"Icon",
+   "save":"Save",
+   "removeQuestion":"Do you wanna remove this expense?",
+   "yes":"Yes",
+   "no":"No",
+   "total":"Total",
+   "newExpense":"New Expense",
+   "fixed":"Fixed",
+   "category":"Category",
+   "attention": "Attention",
+   "description": "Description",
+   "title":"Title",
+   "value":"Value",
+   "expenseDate":"Expense Date"
+}

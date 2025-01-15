@@ -7,6 +7,7 @@ import 'package:fake_wallet/widgets/header.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:fake_wallet/utils/date_utils.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class Home extends StatefulWidget {
   final AppDatabase database;
@@ -175,9 +176,9 @@ class _HomeState extends State<Home> {
                             context: context,
                             builder: (builder) {
                               return AlertDialog(
-                                title: const Text('Attention!'),
+                                title:  Text(AppLocalizations.of(context)!.attention),
                                 content:
-                                    Text('Do you wanna remove this expense?'),
+                                    Text(AppLocalizations.of(context)!.removeQuestion),
                                 actions: <Widget>[
                                   TextButton(
                                     style: TextButton.styleFrom(
@@ -185,7 +186,7 @@ class _HomeState extends State<Home> {
                                           .textTheme
                                           .labelLarge,
                                     ),
-                                    child: const Text('No'),
+                                    child:  Text(AppLocalizations.of(context)!.no),
                                     onPressed: () {
                                       Navigator.of(context).pop(false);
                                     },
@@ -196,7 +197,7 @@ class _HomeState extends State<Home> {
                                           .textTheme
                                           .labelLarge,
                                     ),
-                                    child: const Text('Yes'),
+                                    child: Text(AppLocalizations.of(context)!.yes),
                                     onPressed: () {
                                       Navigator.of(context).pop(true);
                                     },
@@ -246,7 +247,7 @@ class _HomeState extends State<Home> {
                                     ),
                                   ),
                                   Text(
-                                    NumberFormat.simpleCurrency(locale: "pt_Br")
+                                    NumberFormat.simpleCurrency(locale: Intl.systemLocale)
                                         .format(expenses[indice].value),
                                     style: TextStyle(
                                         fontSize: 17,
@@ -267,10 +268,10 @@ class _HomeState extends State<Home> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('Total:',
+                  Text(AppLocalizations.of(context)!.total,
                       style: TextStyle(color: Colors.white, fontSize: 18)),
                   Text(
-                    NumberFormat.simpleCurrency(locale: 'pt-Br')
+                    NumberFormat.simpleCurrency(locale: Intl.systemLocale)
                         .format(totalValueExpenses),
                     style: TextStyle(
                         color: Colors.white,
@@ -290,7 +291,7 @@ class _HomeState extends State<Home> {
                 context: context,
                 builder: (builder) {
                   return AlertDialog(
-                    title: const Text('New Expense'),
+                    title:  Text(AppLocalizations.of(context)!.newExpense),
                     content: ExpensiveForm(
                         onSave: (ex) {
                           insertExpense(ex);

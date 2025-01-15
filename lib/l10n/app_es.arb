@@ -1,0 +1,17 @@
+{
+   "newCategory": "Nueva Categoría",
+   "icon":"Icono",
+   "save":"Ahorrar",
+   "removeQuestion":"Quieres eliminar este gasto?",
+   "yes":"Sí",
+   "no":"No",
+   "total":"Total",
+   "newExpense":"Nuevo Gasto",
+   "fixed":"Fijado",
+   "category":"Categoría",
+   "attention": "Atención",
+   "description": "Descripción",
+   "title":"Título",
+   "value":"Valor",
+   "expenseDate":"Fecha de Gasto"
+}
