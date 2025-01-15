@@ -163,55 +163,101 @@ class _HomeState extends State<Home> {
                   scrollDirection: Axis.vertical,
                   shrinkWrap: true,
                   itemBuilder: (BuildContext context, int indice) {
-                    return Container(
-                        decoration: const BoxDecoration(
-                            color: Color.fromARGB(248, 242, 252, 255),
-                            borderRadius:
-                                BorderRadius.all(Radius.circular(12))),
-                        padding: const EdgeInsets.all(7),
-                        margin: const EdgeInsets.fromLTRB(10, 0, 10, 10),
-                        child: Column(
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  DateFormat('dd/MM/yyyy')
-                                      .format(expenses[indice].expenseDate),
-                                  style: TextStyle(
-                                      color: Colors.blue.shade900,
-                                      fontWeight: FontWeight.w500),
-                                ),
-                                Icon(Icons.chevron_right,
-                                    size: 15, color: Colors.blue.shade900)
-                              ],
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Flexible(
-                                  child: Text(
-                                    "${expenses[indice].name} - ${expenses[indice].name}",
-                                    overflow: TextOverflow.ellipsis,
-                                    style: TextStyle(
-                                        fontSize: 14,
-                                        color: Colors.blue.shade900,
-                                        fontWeight: FontWeight.w400),
+                    return Dismissible(
+                      onResize: () {
+                        widget.database
+                            .delete(widget.database.expense)
+                            .deleteReturning(expenses[indice]);
+                      },
+                      direction: DismissDirection.startToEnd,
+                      confirmDismiss: (direction) async {
+                        return await showDialog(
+                            context: context,
+                            builder: (builder) {
+                              return AlertDialog(
+                                title: const Text('Attention!'),
+                                content:
+                                    Text('Do you wanna remove this expense?'),
+                                actions: <Widget>[
+                                  TextButton(
+                                    style: TextButton.styleFrom(
+                                      textStyle: Theme.of(context)
+                                          .textTheme
+                                          .labelLarge,
+                                    ),
+                                    child: const Text('No'),
+                                    onPressed: () {
+                                      Navigator.of(context).pop(false);
+                                    },
                                   ),
-                                ),
-                                Text(
-                                  NumberFormat.simpleCurrency(locale: "pt_Br")
-                                      .format(expenses[indice].value),
-                                  style: TextStyle(
-                                      fontSize: 17,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.blue.shade900),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ));
+                                  TextButton(
+                                    style: TextButton.styleFrom(
+                                      textStyle: Theme.of(context)
+                                          .textTheme
+                                          .labelLarge,
+                                    ),
+                                    child: const Text('Yes'),
+                                    onPressed: () {
+                                      Navigator.of(context).pop(true);
+                                    },
+                                  ),
+                                ],
+                              );
+                            });
+                      },
+                      key: Key(expenses[indice].name),
+                      child: Container(
+                          decoration: const BoxDecoration(
+                              color: Color.fromARGB(248, 242, 252, 255),
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(12))),
+                          padding: const EdgeInsets.all(7),
+                          margin: const EdgeInsets.fromLTRB(10, 0, 10, 10),
+                          child: Column(
+                            children: [
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    DateFormat('dd/MM/yyyy')
+                                        .format(expenses[indice].expenseDate),
+                                    style: TextStyle(
+                                        color: Colors.blue.shade900,
+                                        fontWeight: FontWeight.w500),
+                                  ),
+                                  Icon(Icons.chevron_right,
+                                      size: 15, color: Colors.blue.shade900)
+                                ],
+                              ),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Flexible(
+                                    child: Text(
+                                      "${expenses[indice].name} - ${expenses[indice].name}",
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(
+                                          fontSize: 14,
+                                          color: Colors.blue.shade900,
+                                          fontWeight: FontWeight.w400),
+                                    ),
+                                  ),
+                                  Text(
+                                    NumberFormat.simpleCurrency(locale: "pt_Br")
+                                        .format(expenses[indice].value),
+                                    style: TextStyle(
+                                        fontSize: 17,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.blue.shade900),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          )),
+                    );
                   }),
             ),
             Container(
