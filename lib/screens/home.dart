@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:drift/drift.dart' as drift;
+import 'package:excel/excel.dart';
 import 'package:fake_wallet/database.dart';
 import 'package:fake_wallet/models/expensive.dart';
 import 'package:fake_wallet/widgets/chart.dart';
@@ -8,6 +11,9 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:fake_wallet/utils/date_utils.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:share_plus/share_plus.dart';
 
 class Home extends StatefulWidget {
   final AppDatabase database;
@@ -176,9 +182,10 @@ class _HomeState extends State<Home> {
                             context: context,
                             builder: (builder) {
                               return AlertDialog(
-                                title:  Text(AppLocalizations.of(context)!.attention),
-                                content:
-                                    Text(AppLocalizations.of(context)!.removeQuestion),
+                                title: Text(
+                                    AppLocalizations.of(context)!.attention),
+                                content: Text(AppLocalizations.of(context)!
+                                    .removeQuestion),
                                 actions: <Widget>[
                                   TextButton(
                                     style: TextButton.styleFrom(
@@ -186,7 +193,8 @@ class _HomeState extends State<Home> {
                                           .textTheme
                                           .labelLarge,
                                     ),
-                                    child:  Text(AppLocalizations.of(context)!.no),
+                                    child:
+                                        Text(AppLocalizations.of(context)!.no),
                                     onPressed: () {
                                       Navigator.of(context).pop(false);
                                     },
@@ -197,7 +205,8 @@ class _HomeState extends State<Home> {
                                           .textTheme
                                           .labelLarge,
                                     ),
-                                    child: Text(AppLocalizations.of(context)!.yes),
+                                    child:
+                                        Text(AppLocalizations.of(context)!.yes),
                                     onPressed: () {
                                       Navigator.of(context).pop(true);
                                     },
@@ -247,7 +256,8 @@ class _HomeState extends State<Home> {
                                     ),
                                   ),
                                   Text(
-                                    NumberFormat.simpleCurrency(locale: Intl.systemLocale)
+                                    NumberFormat.simpleCurrency(
+                                            locale: Intl.systemLocale)
                                         .format(expenses[indice].value),
                                     style: TextStyle(
                                         fontSize: 17,
@@ -277,7 +287,38 @@ class _HomeState extends State<Home> {
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
                         fontSize: 20),
-                  )
+                  ),
+                  totalValueExpenses > 0
+                      ? OutlinedButton(
+                          onPressed: () async {
+                            var excel = Excel.createExcel();
+                            excel.appendRow(excel.getDefaultSheet()!, [
+                              IntCellValue(8),
+                              DoubleCellValue(999.62221),
+                              DateCellValue(
+                                year: DateTime.now().year,
+                                month: DateTime.now().month,
+                                day: DateTime.now().day,
+                              ),
+                              DateTimeCellValue.fromDateTime(DateTime.now()),
+                            ]);
+                            var status = await Permission.storage.status;
+                            if(status.isDenied)   await Permission.storage.request();
+                            
+                           var fileBytes = excel.save();            
+                            final directory =
+                                await getApplicationCacheDirectory();
+                            File("${directory.path}/temp-file.xlsx")..createSync(recursive: true)..writeAsBytesSync(fileBytes!);
+                            final result = await Share.shareXFiles(
+                                [XFile("${directory.path}/temp-file.xlsx")],
+                                text: 'Great picture');
+
+                            if (result.status == ShareResultStatus.success) {
+                              print('Thank you for sharing the picture!');
+                            }
+                          },
+                          child: const Icon(Icons.share))
+                      : Container()
                 ],
               ),
             )
@@ -291,7 +332,7 @@ class _HomeState extends State<Home> {
                 context: context,
                 builder: (builder) {
                   return AlertDialog(
-                    title:  Text(AppLocalizations.of(context)!.newExpense),
+                    title: Text(AppLocalizations.of(context)!.newExpense),
                     content: ExpensiveForm(
                         onSave: (ex) {
                           insertExpense(ex);
