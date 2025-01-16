@@ -13,5 +13,6 @@
    "description": "Description",
    "title":"Title",
    "value":"Value",
-   "expenseDate":"Expense Date"
+   "expenseDate":"Expense Date",
+   "expense": "Expenses"
 }

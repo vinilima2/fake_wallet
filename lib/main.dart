@@ -29,15 +29,7 @@ class MyApp extends StatelessWidget {
               builder: (BuildContext innerContext) {
                 return DefaultTabController(
                   length: 3,
-                  child: Scaffold(
-                    appBar: AppBar(
-                      backgroundColor: Colors.blue.shade900,
-                      title: const Text(
-                        'Fake Wallet',
-                        style: TextStyle(
-                            fontWeight: FontWeight.w600, color: Colors.white),
-                      ),
-                    ),
+                  child: Scaffold(    
                     body: TabBarView(
                       children: [
                         Home(database: Db.of(context)?.appDatabase ?? database),

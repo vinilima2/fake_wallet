@@ -150,203 +150,242 @@ class _HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: SingleChildScrollView(
-            child: Column(
-          children: [
-            Header(callback: (p0) {
-              listAllExpenses(p0);
-            }),
-            SizedBox(
-              height: MediaQuery.sizeOf(context).height / 4,
-              child: Chart(
-                expenses: finalList,
-              ),
-            ),
-            const Divider(height: 5),
-            SizedBox(
-              height: MediaQuery.sizeOf(context).height / 2,
-              child: ListView.builder(
-                  itemCount: expenses.length,
-                  scrollDirection: Axis.vertical,
-                  shrinkWrap: true,
-                  itemBuilder: (BuildContext context, int indice) {
-                    return Dismissible(
-                      onResize: () {
-                        widget.database
-                            .delete(widget.database.expense)
-                            .deleteReturning(expenses[indice]);
-                      },
-                      direction: DismissDirection.startToEnd,
-                      confirmDismiss: (direction) async {
-                        return await showDialog(
-                            context: context,
-                            builder: (builder) {
-                              return AlertDialog(
-                                title: Text(
-                                    AppLocalizations.of(context)!.attention),
-                                content: Text(AppLocalizations.of(context)!
-                                    .removeQuestion),
-                                actions: <Widget>[
-                                  TextButton(
-                                    style: TextButton.styleFrom(
-                                      textStyle: Theme.of(context)
-                                          .textTheme
-                                          .labelLarge,
-                                    ),
-                                    child:
-                                        Text(AppLocalizations.of(context)!.no),
-                                    onPressed: () {
-                                      Navigator.of(context).pop(false);
-                                    },
-                                  ),
-                                  TextButton(
-                                    style: TextButton.styleFrom(
-                                      textStyle: Theme.of(context)
-                                          .textTheme
-                                          .labelLarge,
-                                    ),
-                                    child:
-                                        Text(AppLocalizations.of(context)!.yes),
-                                    onPressed: () {
-                                      Navigator.of(context).pop(true);
-                                    },
-                                  ),
-                                ],
-                              );
-                            });
-                      },
-                      key: Key(expenses[indice].name),
-                      child: Container(
-                          decoration: const BoxDecoration(
-                              color: Color.fromARGB(248, 242, 252, 255),
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(12))),
-                          padding: const EdgeInsets.all(7),
-                          margin: const EdgeInsets.fromLTRB(10, 0, 10, 10),
-                          child: Column(
-                            children: [
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(
-                                    DateFormat('dd/MM/yyyy')
-                                        .format(expenses[indice].expenseDate),
-                                    style: TextStyle(
-                                        color: Colors.blue.shade900,
-                                        fontWeight: FontWeight.w500),
-                                  ),
-                                  Icon(Icons.chevron_right,
-                                      size: 15, color: Colors.blue.shade900)
-                                ],
-                              ),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  Flexible(
-                                    child: Text(
-                                      "${expenses[indice].name} - ${expenses[indice].name}",
-                                      overflow: TextOverflow.ellipsis,
-                                      style: TextStyle(
-                                          fontSize: 14,
-                                          color: Colors.blue.shade900,
-                                          fontWeight: FontWeight.w400),
-                                    ),
-                                  ),
-                                  Text(
-                                    NumberFormat.simpleCurrency(
-                                            locale: Intl.systemLocale)
-                                        .format(expenses[indice].value),
-                                    style: TextStyle(
-                                        fontSize: 17,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.blue.shade900),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          )),
-                    );
-                  }),
-            ),
-            Container(
-              color: Colors.blue.shade900,
-              height: 45,
-              padding: EdgeInsets.all(3),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(AppLocalizations.of(context)!.total,
-                      style: TextStyle(color: Colors.white, fontSize: 18)),
-                  Text(
-                    NumberFormat.simpleCurrency(locale: Intl.systemLocale)
-                        .format(totalValueExpenses),
-                    style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 20),
-                  ),
-                  totalValueExpenses > 0
-                      ? OutlinedButton(
-                          onPressed: () async {
-                            var excel = Excel.createExcel();
-                            excel.appendRow(excel.getDefaultSheet()!, [
-                              IntCellValue(8),
-                              DoubleCellValue(999.62221),
-                              DateCellValue(
-                                year: DateTime.now().year,
-                                month: DateTime.now().month,
-                                day: DateTime.now().day,
-                              ),
-                              DateTimeCellValue.fromDateTime(DateTime.now()),
-                            ]);
-                            var status = await Permission.storage.status;
-                            if(status.isDenied)   await Permission.storage.request();
-                            
-                           var fileBytes = excel.save();            
-                            final directory =
-                                await getApplicationCacheDirectory();
-                            File("${directory.path}/temp-file.xlsx")..createSync(recursive: true)..writeAsBytesSync(fileBytes!);
-                            final result = await Share.shareXFiles(
-                                [XFile("${directory.path}/temp-file.xlsx")],
-                                text: 'Great picture');
-
-                            if (result.status == ShareResultStatus.success) {
-                              print('Thank you for sharing the picture!');
-                            }
+      appBar: AppBar(
+        backgroundColor: Colors.blue.shade900,
+        title: const Text(
+          'Fake Wallet',
+          style: TextStyle(fontWeight: FontWeight.w600, color: Colors.white),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              showDialog(
+                  context: context,
+                  builder: (builder) {
+                    return AlertDialog(
+                      title: Text(AppLocalizations.of(context)!.newExpense),
+                      content: ExpensiveForm(
+                          onSave: (ex) {
+                            insertExpense(ex);
                           },
-                          child: const Icon(Icons.share))
-                      : Container()
-                ],
-              ),
-            )
-          ],
-        )),
-        floatingActionButton: FloatingActionButton(
-          backgroundColor: Colors.blueAccent,
-          shape: const CircleBorder(),
-          onPressed: () {
-            showDialog(
-                context: context,
-                builder: (builder) {
-                  return AlertDialog(
-                    title: Text(AppLocalizations.of(context)!.newExpense),
-                    content: ExpensiveForm(
-                        onSave: (ex) {
-                          insertExpense(ex);
-                        },
-                        categories: categories),
-                  );
-                });
-          },
-          // backgroundColor: Colors.redAccent,
-          child: const Icon(
-            Icons.add,
-            color: Color.fromARGB(255, 255, 255, 255),
-            size: 25,
+                          categories: categories),
+                    );
+                  });
+            },
+            // backgroundColor: Colors.redAccent,
+            child: const Icon(
+              Icons.add,
+              color: Color.fromARGB(255, 255, 255, 255),
+              size: 25,
+            ),
           ),
-        ));
+          totalValueExpenses > 0
+              ? TextButton(
+                  onPressed: () async {
+                    var excel = Excel.createExcel();
+
+                    Sheet sheetObject = excel[excel.getDefaultSheet()!];
+
+                    CellStyle cellStyle = CellStyle(
+                      horizontalAlign: HorizontalAlign.Center,
+                      verticalAlign: VerticalAlign.Center,
+                      fontFamily: getFontFamily(FontFamily.Arial),
+                      fontSize: 12,
+                      numberFormat: const CustomDateTimeNumFormat(
+                          formatCode: 'dd/MM/yyyy'),
+                    );
+
+                    var cell = sheetObject.cell(CellIndex.indexByString('A1'));
+                    cell.value = TextCellValue(
+                        '${AppLocalizations.of(context)!.expense} - $monthAndYear');
+                    cell.cellStyle = cellStyle;
+
+                    excel.merge(
+                        excel.getDefaultSheet()!,
+                        CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: 0),
+                        CellIndex.indexByColumnRow(
+                            columnIndex: 3, rowIndex: 0));
+
+                    excel.appendRow(excel.getDefaultSheet()!, [
+                      TextCellValue(AppLocalizations.of(context)!.title),
+                      TextCellValue(AppLocalizations.of(context)!.expenseDate),
+                      TextCellValue(AppLocalizations.of(context)!.value),
+                      TextCellValue(AppLocalizations.of(context)!.category),
+                    ]);
+
+                    expenses.forEach((expense) {
+                      excel.appendRow(excel.getDefaultSheet()!, [
+                        TextCellValue(expense.title),
+                        TextCellValue(DateFormat('dd/MM/yyyy')
+                            .format(expense.expenseDate)),
+                        TextCellValue(NumberFormat.simpleCurrency(
+                                locale: Intl.systemLocale)
+                            .format(expense.value)),
+                        IntCellValue(expense.category)
+                      ]);
+                    });
+
+                    var status = await Permission.storage.status;
+                    if (status.isDenied) await Permission.storage.request();
+
+                    var fileBytes = excel.save();
+                    final directory = await getApplicationCacheDirectory();
+                    File("${directory.path}/temp-file.xlsx")
+                      ..createSync(recursive: true)
+                      ..writeAsBytesSync(fileBytes!);
+                    final result = await Share.shareXFiles(
+                        [XFile("${directory.path}/temp-file.xlsx")],
+                        text: 'Great picture');
+
+                    if (result.status == ShareResultStatus.success) {
+                      print('Thank you for sharing the picture!');
+                    }
+                  },
+                  child: const Icon(
+                    Icons.share,
+                    color: Color.fromARGB(255, 255, 255, 255),
+                  ))
+              : Container()
+        ],
+      ),
+      body: SingleChildScrollView(
+          child: Column(
+        children: [
+          Header(callback: (p0) {
+            listAllExpenses(p0);
+          }),
+          SizedBox(
+            height: MediaQuery.sizeOf(context).height / 4,
+            child: Chart(
+              expenses: finalList,
+            ),
+          ),
+          const Divider(height: 5),
+          SizedBox(
+            height: MediaQuery.sizeOf(context).height / 2,
+            child: ListView.builder(
+                itemCount: expenses.length,
+                scrollDirection: Axis.vertical,
+                shrinkWrap: true,
+                itemBuilder: (BuildContext context, int indice) {
+                  return Dismissible(
+                    onResize: () {
+                      widget.database
+                          .delete(widget.database.expense)
+                          .deleteReturning(expenses[indice]);
+                    },
+                    direction: DismissDirection.startToEnd,
+                    confirmDismiss: (direction) async {
+                      return await showDialog(
+                          context: context,
+                          builder: (builder) {
+                            return AlertDialog(
+                              title:
+                                  Text(AppLocalizations.of(context)!.attention),
+                              content: Text(
+                                  AppLocalizations.of(context)!.removeQuestion),
+                              actions: <Widget>[
+                                TextButton(
+                                  style: TextButton.styleFrom(
+                                    textStyle:
+                                        Theme.of(context).textTheme.labelLarge,
+                                  ),
+                                  child: Text(AppLocalizations.of(context)!.no),
+                                  onPressed: () {
+                                    Navigator.of(context).pop(false);
+                                  },
+                                ),
+                                TextButton(
+                                  style: TextButton.styleFrom(
+                                    textStyle:
+                                        Theme.of(context).textTheme.labelLarge,
+                                  ),
+                                  child:
+                                      Text(AppLocalizations.of(context)!.yes),
+                                  onPressed: () {
+                                    Navigator.of(context).pop(true);
+                                  },
+                                ),
+                              ],
+                            );
+                          });
+                    },
+                    key: Key(expenses[indice].name),
+                    child: Container(
+                        decoration: const BoxDecoration(
+                            color: Color.fromARGB(248, 242, 252, 255),
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(12))),
+                        padding: const EdgeInsets.all(7),
+                        margin: const EdgeInsets.fromLTRB(10, 0, 10, 10),
+                        child: Column(
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  DateFormat('dd/MM/yyyy')
+                                      .format(expenses[indice].expenseDate),
+                                  style: TextStyle(
+                                      color: Colors.blue.shade900,
+                                      fontWeight: FontWeight.w500),
+                                ),
+                                Icon(Icons.chevron_right,
+                                    size: 15, color: Colors.blue.shade900)
+                              ],
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Flexible(
+                                  child: Text(
+                                    "${expenses[indice].name} - ${expenses[indice].name}",
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
+                                        fontSize: 14,
+                                        color: Colors.blue.shade900,
+                                        fontWeight: FontWeight.w400),
+                                  ),
+                                ),
+                                Text(
+                                  NumberFormat.simpleCurrency(
+                                          locale: Intl.systemLocale)
+                                      .format(expenses[indice].value),
+                                  style: TextStyle(
+                                      fontSize: 17,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.blue.shade900),
+                                ),
+                              ],
+                            ),
+                          ],
+                        )),
+                  );
+                }),
+          ),
+          Container(
+            color: Colors.blue.shade900,
+            height: 45,
+            padding: EdgeInsets.all(3),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(AppLocalizations.of(context)!.total,
+                    style: TextStyle(color: Colors.white, fontSize: 18)),
+                Text(
+                  NumberFormat.simpleCurrency(locale: Intl.systemLocale)
+                      .format(totalValueExpenses),
+                  style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 20),
+                ),
+              ],
+            ),
+          )
+        ],
+      )),
+    );
   }
 }
