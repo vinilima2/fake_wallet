@@ -103,6 +103,7 @@ class _HomeState extends State<Home> {
     if (expenses.isEmpty) {
       setState(() {
         finalList = [];
+        totalValueExpenses = 0;
       });
       return;
     }
@@ -176,7 +177,7 @@ class _HomeState extends State<Home> {
             child: const Icon(
               Icons.add,
               color: Color.fromARGB(255, 255, 255, 255),
-              size: 25,
+              size: 30,
             ),
           ),
           totalValueExpenses > 0
@@ -229,20 +230,16 @@ class _HomeState extends State<Home> {
                     if (status.isDenied) await Permission.storage.request();
 
                     var fileBytes = excel.save();
-                    final directory = await getApplicationCacheDirectory();
+                    final directory = await getApplicationDocumentsDirectory();
                     File("${directory.path}/temp-file.xlsx")
                       ..createSync(recursive: true)
                       ..writeAsBytesSync(fileBytes!);
-                    final result = await Share.shareXFiles(
-                        [XFile("${directory.path}/temp-file.xlsx")],
-                        text: 'Great picture');
-
-                    if (result.status == ShareResultStatus.success) {
-                      print('Thank you for sharing the picture!');
-                    }
+                    await Share.shareXFiles(
+                        [XFile("${directory.path}/temp-file.xlsx")]);
                   },
                   child: const Icon(
                     Icons.share,
+                    size: 22,
                     color: Color.fromARGB(255, 255, 255, 255),
                   ))
               : Container()
@@ -268,11 +265,13 @@ class _HomeState extends State<Home> {
                 scrollDirection: Axis.vertical,
                 shrinkWrap: true,
                 itemBuilder: (BuildContext context, int indice) {
+                  var expense = expenses[indice];
+
                   return Dismissible(
                     onResize: () {
                       widget.database
                           .delete(widget.database.expense)
-                          .deleteReturning(expenses[indice]);
+                          .deleteReturning(expense);
                     },
                     direction: DismissDirection.startToEnd,
                     confirmDismiss: (direction) async {
@@ -310,7 +309,7 @@ class _HomeState extends State<Home> {
                             );
                           });
                     },
-                    key: Key(expenses[indice].name),
+                    key: Key(expense.name),
                     child: Container(
                         decoration: const BoxDecoration(
                             color: Color.fromARGB(248, 242, 252, 255),
@@ -325,7 +324,7 @@ class _HomeState extends State<Home> {
                               children: [
                                 Text(
                                   DateFormat('dd/MM/yyyy')
-                                      .format(expenses[indice].expenseDate),
+                                      .format(expense.expenseDate),
                                   style: TextStyle(
                                       color: Colors.blue.shade900,
                                       fontWeight: FontWeight.w500),
@@ -340,7 +339,7 @@ class _HomeState extends State<Home> {
                               children: [
                                 Flexible(
                                   child: Text(
-                                    "${expenses[indice].name} - ${expenses[indice].name}",
+                                    "${expense.title} - ${expense.name}",
                                     overflow: TextOverflow.ellipsis,
                                     style: TextStyle(
                                         fontSize: 14,
@@ -351,7 +350,7 @@ class _HomeState extends State<Home> {
                                 Text(
                                   NumberFormat.simpleCurrency(
                                           locale: Intl.systemLocale)
-                                      .format(expenses[indice].value),
+                                      .format(expense.value),
                                   style: TextStyle(
                                       fontSize: 17,
                                       fontWeight: FontWeight.bold,
@@ -366,7 +365,6 @@ class _HomeState extends State<Home> {
           ),
           Container(
             color: Colors.blue.shade900,
-            height: 45,
             padding: EdgeInsets.all(3),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
