@@ -30,5 +30,6 @@
   "school": "Escuela",
   "coffee": "Café",
   "another": "Otro",
-  "health": "Salud"
+  "health": "Salud",
+    "numberOfMonth":"Numero de Meses"
 }

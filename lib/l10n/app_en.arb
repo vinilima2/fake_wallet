@@ -30,5 +30,6 @@
   "school": "School",
   "coffee": "Coffee",
   "another": "Another",
-  "health": "Health"
+  "health": "Health",
+  "numberOfMonth":"Number of Months"
 }

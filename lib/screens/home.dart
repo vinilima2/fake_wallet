@@ -1,10 +1,8 @@
-import 'dart:io';
-
 import 'package:drift/drift.dart' as drift;
-import 'package:excel/excel.dart';
 import 'package:fake_wallet/database.dart';
 import 'package:fake_wallet/models/expensive.dart';
 import 'package:fake_wallet/screens/database.dart';
+import 'package:fake_wallet/utils/export_utils.dart';
 import 'package:fake_wallet/widgets/chart.dart';
 import 'package:fake_wallet/widgets/expensive_form.dart';
 import 'package:fake_wallet/widgets/header.dart';
@@ -12,12 +10,10 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:fake_wallet/utils/date_utils.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:permission_handler/permission_handler.dart';
-import 'package:share_plus/share_plus.dart';
 
 class Home extends StatefulWidget {
   final AppDatabase database;
+
   const Home({super.key, required this.database});
 
   @override
@@ -39,7 +35,11 @@ class _HomeState extends State<Home> {
           ..where((tbl) {
             return tbl.expenseDate.month.equals(int.parse(splitDate[0])) &
                 tbl.expenseDate.year.equals(int.parse(splitDate[1]));
-          }))
+          })
+          ..orderBy([
+            (table) => drift.OrderingTerm.asc(table.fixed),
+            (table) => drift.OrderingTerm.desc(table.expenseDate)
+          ]))
         .watch()
         .listen((list) {
       setState(() {
@@ -88,7 +88,7 @@ class _HomeState extends State<Home> {
   void insertFixedExpense(Expensive expensive) async {
     DateTime actualDateTime =
         DateFormat('dd/MM/yyyy').parse(expensive.expenseDate);
-    for (int i = 1; i < 7; i++) {
+    for (int i = 1; i <= expensive.numberMonthsOfFixedExpense; i++) {
       await widget.database.into(widget.database.expense).insert(
           ExpenseCompanion.insert(
               title: expensive.title,
@@ -193,59 +193,8 @@ class _HomeState extends State<Home> {
           totalValueExpenses > 0
               ? TextButton(
                   onPressed: () async {
-                    var excel = Excel.createExcel();
-
-                    Sheet sheetObject = excel[excel.getDefaultSheet()!];
-
-                    CellStyle cellStyle = CellStyle(
-                      horizontalAlign: HorizontalAlign.Center,
-                      verticalAlign: VerticalAlign.Center,
-                      fontFamily: getFontFamily(FontFamily.Arial),
-                      fontSize: 12,
-                      numberFormat: const CustomDateTimeNumFormat(
-                          formatCode: 'dd/MM/yyyy'),
-                    );
-
-                    var cell = sheetObject.cell(CellIndex.indexByString('A1'));
-                    cell.value = TextCellValue(
-                        '${AppLocalizations.of(context)!.expense} - $monthAndYear');
-                    cell.cellStyle = cellStyle;
-
-                    excel.merge(
-                        excel.getDefaultSheet()!,
-                        CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: 0),
-                        CellIndex.indexByColumnRow(
-                            columnIndex: 3, rowIndex: 0));
-
-                    excel.appendRow(excel.getDefaultSheet()!, [
-                      TextCellValue(AppLocalizations.of(context)!.title),
-                      TextCellValue(AppLocalizations.of(context)!.expenseDate),
-                      TextCellValue(AppLocalizations.of(context)!.value),
-                      TextCellValue(AppLocalizations.of(context)!.category),
-                    ]);
-
-                    expenses.forEach((expense) {
-                      excel.appendRow(excel.getDefaultSheet()!, [
-                        TextCellValue(expense.title),
-                        TextCellValue(DateFormat('dd/MM/yyyy')
-                            .format(expense.expenseDate)),
-                        TextCellValue(NumberFormat.simpleCurrency(
-                                locale: Intl.systemLocale)
-                            .format(expense.value)),
-                        IntCellValue(expense.category)
-                      ]);
-                    });
-
-                    var status = await Permission.storage.status;
-                    if (status.isDenied) await Permission.storage.request();
-
-                    var fileBytes = excel.save();
-                    final directory = await getApplicationDocumentsDirectory();
-                    File("${directory.path}/temp-file.xlsx")
-                      ..createSync(recursive: true)
-                      ..writeAsBytesSync(fileBytes!);
-                    await Share.shareXFiles(
-                        [XFile("${directory.path}/temp-file.xlsx")]);
+                    await ExportUtils()
+                        .exportToXLSX(context, monthAndYear, expenses);
                   },
                   child: const Icon(
                     Icons.share,
@@ -321,10 +270,17 @@ class _HomeState extends State<Home> {
                     },
                     key: Key(expense.name),
                     child: Container(
-                        decoration: const BoxDecoration(
-                            color: Color.fromARGB(248, 242, 252, 255),
-                            borderRadius:
-                                BorderRadius.all(Radius.circular(12))),
+                        decoration: BoxDecoration(
+                          color: expense.fixed
+                              ? Colors.grey.shade100
+                              : Colors.white60,
+                          border: Border(
+                              left: BorderSide(
+                                  color: expense.fixed
+                                      ? Colors.grey.shade600
+                                      : Colors.lightBlueAccent,
+                                  width: 5)),
+                        ),
                         padding: const EdgeInsets.all(7),
                         margin: const EdgeInsets.fromLTRB(10, 0, 10, 10),
                         child: Column(
@@ -336,11 +292,16 @@ class _HomeState extends State<Home> {
                                   DateFormat('dd/MM/yyyy')
                                       .format(expense.expenseDate),
                                   style: TextStyle(
-                                      color: Colors.blue.shade900,
+                                      color: expense.fixed
+                                          ? Colors.grey.shade600
+                                          : Colors.lightBlueAccent,
                                       fontWeight: FontWeight.w500),
                                 ),
                                 Icon(Icons.chevron_right,
-                                    size: 15, color: Colors.blue.shade900)
+                                    size: 15,
+                                    color: expense.fixed
+                                        ? Colors.grey.shade600
+                                        : Colors.lightBlueAccent)
                               ],
                             ),
                             Row(
@@ -353,7 +314,9 @@ class _HomeState extends State<Home> {
                                     overflow: TextOverflow.ellipsis,
                                     style: TextStyle(
                                         fontSize: 14,
-                                        color: Colors.blue.shade900,
+                                        color: expense.fixed
+                                            ? Colors.grey.shade600
+                                            : Colors.lightBlueAccent,
                                         fontWeight: FontWeight.w400),
                                   ),
                                 ),
@@ -364,7 +327,9 @@ class _HomeState extends State<Home> {
                                   style: TextStyle(
                                       fontSize: 17,
                                       fontWeight: FontWeight.bold,
-                                      color: Colors.blue.shade900),
+                                      color: expense.fixed
+                                          ? Colors.grey.shade600
+                                          : Colors.lightBlueAccent),
                                 ),
                               ],
                             ),
