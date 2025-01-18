@@ -29,6 +29,11 @@ class _ChartState extends State<Chart> {
     'Health': 0xe305
   };
 
+  @override
+  void initState() {
+    print(widget.expenses);
+  }
+
   static const List<MaterialColor> colors = [
     Colors.green,
     Colors.amber,
@@ -48,9 +53,8 @@ class _ChartState extends State<Chart> {
   List<PieChartSectionData> showingSections() {
     return widget.expenses.map((i) {
       final isTouched = widget.expenses.indexOf(i) == touchedIndex;
-      final fontSize = isTouched ? 30.0 : 16.0;
-      final radius = isTouched ? 115.0 : 100.0;
-      final widgetSize = isTouched ? 60.0 : 40.0;
+      final fontSize = isTouched ? 16.0 : 14.0;
+      final radius = isTouched ? 110.0 : 90.0;
       const shadows = [Shadow(color: Colors.black, blurRadius: 2)];
 
       return PieChartSectionData(
@@ -102,7 +106,7 @@ class _ChartState extends State<Chart> {
                 show: false,
               ),
               sectionsSpace: 0,
-              centerSpaceRadius: 0,
+              centerSpaceRadius: 5,
               sections: showingSections(),
             ),
             swapAnimationDuration: Duration(seconds: 3),
