@@ -28,20 +28,17 @@ class MyApp extends StatelessWidget {
             child: Builder(
               builder: (BuildContext innerContext) {
                 return DefaultTabController(
-                  length: 3,
+                  length: 2,
                   child: Scaffold(    
                     body: TabBarView(
                       children: [
                         Home(database: Db.of(context)?.appDatabase ?? database),
-                        Database(
-                            database: Db.of(context)?.appDatabase ?? database),
                         Container(),
                       ],
                     ),
                     bottomNavigationBar: const TabBar(
                       tabs: [
                         Tab(icon: Icon(Icons.home)),
-                        Tab(icon: Icon(Icons.data_usage_rounded)),
                         Tab(icon: Icon(Icons.settings)),
                       ],
                     ),

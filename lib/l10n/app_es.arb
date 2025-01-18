@@ -14,5 +14,21 @@
    "title":"Título",
    "value":"Valor",
    "expenseDate":"Fecha de Gasto",
-   "expense": "Gastos"
+   "expense": "Gastos",
+
+  "theater": "Teatro",
+  "carRepair": "Reparación de Automóviles",
+  "energy": "Energía",
+  "water": "Agua",
+  "fastFood": "Comida Rápida",
+  "bus": "Autobús",
+  "creditCard": "Tarjeta de Crédito",
+  "home": "Casa",
+  "fuel": "Combustible",
+  "gas": "Gas",
+  "phone": "Teléfono",
+  "school": "Escuela",
+  "coffee": "Café",
+  "another": "Otro",
+  "health": "Salud"
 }

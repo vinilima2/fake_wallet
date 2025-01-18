@@ -14,5 +14,21 @@
    "title":"Title",
    "value":"Value",
    "expenseDate":"Expense Date",
-   "expense": "Expenses"
+   "expense": "Expenses",
+
+  "theater": "Theater",
+  "carRepair": "Car Repair",
+  "energy": "Energy",
+  "water": "Water",
+  "fastFood": "FastFood",
+  "bus": "Bus",
+  "creditCard": "Credit Card",
+  "home": "Home",
+  "fuel": "Fuel",
+  "gas": "Gas",
+  "phone": "Phone",
+  "school": "School",
+  "coffee": "Coffee",
+  "another": "Another",
+  "health": "Health"
 }

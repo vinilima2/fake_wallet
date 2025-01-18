@@ -4,6 +4,7 @@ import 'package:drift/drift.dart' as drift;
 import 'package:excel/excel.dart';
 import 'package:fake_wallet/database.dart';
 import 'package:fake_wallet/models/expensive.dart';
+import 'package:fake_wallet/screens/database.dart';
 import 'package:fake_wallet/widgets/chart.dart';
 import 'package:fake_wallet/widgets/expensive_form.dart';
 import 'package:fake_wallet/widgets/header.dart';
@@ -52,6 +53,11 @@ class _HomeState extends State<Home> {
 
   Future<void> listAllCategories() async {
     var list = await widget.database.select(widget.database.category).get();
+    if (list.isEmpty) {
+      Database db = Database(database: widget.database);
+      db.seedDatabaseWithCategories(context);
+      listAllCategories();
+    }
     setState(() {
       categories = list;
     });
@@ -116,26 +122,30 @@ class _HomeState extends State<Home> {
       totalValueExpenses = double.parse(total.toStringAsFixed(2));
     });
 
-    var list = categories.map((category) {
-      var expensesPerCategory =
-          expenses.where((expense) => expense.category == category.id).toList();
+    var list = categories
+        .map((category) {
+          var expensesPerCategory = expenses
+              .where((expense) => expense.category == category.id)
+              .toList();
 
-      var totalValueExpensesPerCategory = expensesPerCategory.isNotEmpty
-          ? expensesPerCategory
-              .map((expense) => expense.value)
-              .reduce((current, preview) => (current) + (preview))
-          : 0;
+          var totalValueExpensesPerCategory = expensesPerCategory.isNotEmpty
+              ? expensesPerCategory
+                  .map((expense) => expense.value)
+                  .reduce((current, preview) => (current) + (preview))
+              : 0;
 
-      var percentage =
-          (totalValueExpensesPerCategory * 100) / (totalValueExpenses);
+          var percentage =
+              (totalValueExpensesPerCategory * 100) / (totalValueExpenses);
 
-      return {
-        'id': category.id,
-        'description': category.description,
-        'icon': category.icon,
-        'percentage': double.parse(percentage.toStringAsFixed(2))
-      };
-    }).toList();
+          return {
+            'id': category.id,
+            'description': category.description,
+            'icon': category.icon,
+            'percentage': double.parse(percentage.toStringAsFixed(2))
+          };
+        })
+        .where((item) => (item['percentage']! as double) > 0)
+        .toList();
 
     setState(() {
       finalList = list;
