@@ -98,6 +98,13 @@ class _ExpensiveFormState extends State<ExpensiveForm> {
                   Text(AppLocalizations.of(context)!.fixed)
                 ],
               ),
+              expensive.fixed ? TextFormField(
+                initialValue: expensive.numberMonthsOfFixedExpense.toString(),
+                onChanged: (text) => expensive.numberMonthsOfFixedExpense = int.parse(text),
+                keyboardType: TextInputType.number,
+                maxLength: 2,
+                decoration: InputDecoration(labelText: AppLocalizations.of(context)!.numberOfMonth),
+              ) : Container(),
               FilledButton(
                 onPressed: () {
                   widget.onSave(expensive);
