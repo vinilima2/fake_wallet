@@ -31,9 +31,16 @@ class _HeaderState extends State<Header> {
           icon: Icon(Icons.chevron_left, size: 35, color: Colors.blue.shade900),
           onPressed: () => addOrSubstractMonth(add: false),
         ),
-        Text(
-          literal(),
-          style:  TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.blue.shade900),
+        Container(
+          padding: EdgeInsets.all(5),
+          decoration: BoxDecoration(
+            color: Colors.blue.shade900,
+            borderRadius: BorderRadius.all(Radius.circular(5))
+          ),
+          child: Text(
+            literal(),
+            style:  TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.white ),
+          ),
         ),
         IconButton(
           icon:

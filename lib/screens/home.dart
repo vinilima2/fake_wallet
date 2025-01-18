@@ -207,18 +207,18 @@ class _HomeState extends State<Home> {
       body: SingleChildScrollView(
           child: Column(
         children: [
-          Header(callback: (p0) {
-            listAllExpenses(p0);
+          Header(callback: (date) {
+            listAllExpenses(date);
           }),
           SizedBox(
-            height: MediaQuery.sizeOf(context).height / 4,
+            height: 250,
             child: Chart(
               expenses: finalList,
             ),
           ),
           const Divider(height: 5),
           SizedBox(
-            height: MediaQuery.sizeOf(context).height / 2,
+            height: 500,
             child: ListView.builder(
                 itemCount: expenses.length,
                 scrollDirection: Axis.vertical,
@@ -337,28 +337,28 @@ class _HomeState extends State<Home> {
                         )),
                   );
                 }),
-          ),
-          Container(
-            color: Colors.blue.shade900,
-            padding: EdgeInsets.all(3),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(AppLocalizations.of(context)!.total,
-                    style: TextStyle(color: Colors.white, fontSize: 18)),
-                Text(
-                  NumberFormat.simpleCurrency(locale: Intl.systemLocale)
-                      .format(totalValueExpenses),
-                  style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 20),
-                ),
-              ],
-            ),
           )
         ],
       )),
+      bottomSheet: Container(
+        color: Colors.blue.shade900,
+        padding: EdgeInsets.all(3),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(AppLocalizations.of(context)!.total,
+                style: TextStyle(color: Colors.white, fontSize: 18)),
+            Text(
+              NumberFormat.simpleCurrency(locale: Intl.systemLocale)
+                  .format(totalValueExpenses),
+              style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 20),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
