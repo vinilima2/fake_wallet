@@ -19,12 +19,30 @@ class ExpensiveForm extends StatefulWidget {
 
 class _ExpensiveFormState extends State<ExpensiveForm> {
   Expensive expensive = Expensive();
+  static const iconMap = {
+    'Theater': 0xe655,
+    'Car Repair': 0xe13d,
+    'Energy': 0xe0ee,
+    'Water': 0xf03b4,
+    'FastFood': 0xe25a,
+    'Bus': 0xe11a,
+    'Credit Card': 0xe19f,
+    'Home': 0xe318,
+    'Fuel': 0xe394,
+    'Gas': 0xf07a4,
+    'Phone': 0xe5b7,
+    'School': 0xe559,
+    'Coffee': 0xe178,
+    'Another': 0xe309,
+    'Health': 0xe305
+  };
+
 
   @override
   Widget build(BuildContext context) {
     return Form(
       child: SingleChildScrollView(
-        child: Container(
+        child: SizedBox(
           width: 250,
           height: 500,
           // color: Colors.white,
@@ -42,8 +60,17 @@ class _ExpensiveFormState extends State<ExpensiveForm> {
                     .map<DropdownMenuEntry<CategoryData>>(
                         (CategoryData category) {
                   return DropdownMenuEntry<CategoryData>(
+                    style: ButtonStyle(
+                      backgroundColor: WidgetStatePropertyAll(Colors.white)
+                    ),
                     value: category,
                     label: category.description,
+                    labelWidget: Row(
+                      children: [
+                        Icon(IconData(iconMap[category.icon]!, fontFamily: 'MaterialIcons')),
+                        Text(category.description)
+                      ],
+                    )
                   );
                 }).toList(),
               ),
@@ -111,6 +138,7 @@ class _ExpensiveFormState extends State<ExpensiveForm> {
                 },
                 child: Text(AppLocalizations.of(context)!.save),
                 style: ButtonStyle(
+                    backgroundColor: WidgetStatePropertyAll(Colors.blue.shade900),
                     fixedSize: MaterialStatePropertyAll(Size(1000, 50))),
               )
             ],

@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:fake_wallet/utils/date_utils.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:loader_overlay/loader_overlay.dart';
 
 class Home extends StatefulWidget {
   final AppDatabase database;
@@ -64,6 +65,7 @@ class _HomeState extends State<Home> {
   }
 
   void insertExpense(Expensive expensive) async {
+    context.loaderOverlay.show();
     await widget.database.into(widget.database.expense).insert(
         ExpenseCompanion.insert(
             title: expensive.title,
@@ -78,14 +80,15 @@ class _HomeState extends State<Home> {
             category: expensive.category));
 
     if (expensive.fixed) {
-      insertFixedExpense(expensive);
+     await insertFixedExpense(expensive);
     }
-
     Navigator.of(context).pop();
+    await Future.delayed(Duration(seconds: 1));
+    context.loaderOverlay.hide();
     listAllExpenses(null);
   }
 
-  void insertFixedExpense(Expensive expensive) async {
+  Future<void> insertFixedExpense(Expensive expensive) async {
     DateTime actualDateTime =
         DateFormat('dd/MM/yyyy').parse(expensive.expenseDate);
     for (int i = 1; i <= expensive.numberMonthsOfFixedExpense; i++) {
@@ -113,6 +116,8 @@ class _HomeState extends State<Home> {
       });
       return;
     }
+
+    context.loaderOverlay.show(showOverlay: true);
 
     var total = expenses
         .map((expense) => expense.value)
@@ -150,6 +155,8 @@ class _HomeState extends State<Home> {
     setState(() {
       finalList = list;
     });
+
+    context.loaderOverlay.hide();
   }
 
   @override
@@ -175,6 +182,7 @@ class _HomeState extends State<Home> {
                   builder: (builder) {
                     return AlertDialog(
                       title: Text(AppLocalizations.of(context)!.newExpense),
+                      titleTextStyle: TextStyle(fontWeight: FontWeight.bold, color: Colors.blue.shade900, fontSize: 20),
                       content: ExpensiveForm(
                           onSave: (ex) {
                             insertExpense(ex);
