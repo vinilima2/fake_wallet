@@ -13,6 +13,30 @@ void main() {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
+  static final lightColorScheme = ColorScheme(
+      brightness: Brightness.light,
+      primary: Colors.blue,
+      onPrimary: Colors.blue,
+      secondary: Colors.blue,
+      onSecondary: Colors.blue,
+      error: Colors.blue,
+      onError: Colors.blue,
+      surface: Colors.lightBlue.shade50,
+      onSurface: Colors.blue);
+
+  static final darkColorScheme = ColorScheme(
+      brightness: Brightness.dark,
+      primary: Colors.blue.shade900,
+      onPrimary: Colors.blue.shade900,
+      secondary: Colors.blue.shade900,
+      onSecondary: Colors.blue.shade900,
+      error: Colors.blue.shade900,
+      onError: Colors.blue.shade900,
+      surface: Colors.blueGrey.shade900,
+      onSurface: Colors.blue.shade900);
+
+  final ThemeMode themeMode = ThemeMode.system;
+
   @override
   Widget build(BuildContext context) {
     final database = AppDatabase();
@@ -20,12 +44,11 @@ class MyApp extends StatelessWidget {
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
       title: 'Fake Wallet',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue.shade900),
-        useMaterial3: true,
-      ),
+      themeMode: themeMode,
+      theme: ThemeData(useMaterial3: true, colorScheme: lightColorScheme),
+      darkTheme: ThemeData(useMaterial3: true, colorScheme: darkColorScheme),
       home: LoaderOverlay(
-        overlayColor: Colors.blue.shade900,
+        overlayColor: Colors.grey,
         child: Db(
             appDatabase: database,
             child: Builder(
