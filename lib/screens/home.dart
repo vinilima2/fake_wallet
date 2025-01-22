@@ -1,7 +1,7 @@
 import 'package:drift/drift.dart' as drift;
 import 'package:fake_wallet/database.dart';
 import 'package:fake_wallet/models/expensive.dart';
-import 'package:fake_wallet/screens/database.dart';
+import 'package:fake_wallet/utils/database.dart';
 import 'package:fake_wallet/utils/export_utils.dart';
 import 'package:fake_wallet/widgets/chart.dart';
 import 'package:fake_wallet/widgets/expensive_form.dart';
@@ -83,7 +83,6 @@ class _HomeState extends State<Home> {
       await insertFixedExpense(expensive);
     }
     Navigator.of(context).pop();
-    await Future.delayed(Duration(seconds: 1));
     context.loaderOverlay.hide();
     listAllExpenses(null);
   }
@@ -108,7 +107,7 @@ class _HomeState extends State<Home> {
     }
   }
 
-  void calculateCharts() {
+  Future<void> calculateCharts() async {
     if (expenses.isEmpty) {
       setState(() {
         finalList = [];
@@ -117,7 +116,7 @@ class _HomeState extends State<Home> {
       return;
     }
 
-    context.loaderOverlay.show(showOverlay: true);
+    context.loaderOverlay.show();
 
     var total = expenses
         .map((expense) => expense.value)
@@ -155,7 +154,6 @@ class _HomeState extends State<Home> {
     setState(() {
       finalList = list;
     });
-
     context.loaderOverlay.hide();
   }
 
@@ -168,12 +166,15 @@ class _HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
     final defaultColorScheme = Theme.of(context).colorScheme;
+    final Locale locale = Localizations.localeOf(context);
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: defaultColorScheme.onSurface,
-        title:  Text(
+        title: Text(
           'Fake Wallet',
-          style: TextStyle(fontWeight: FontWeight.w600, color: defaultColorScheme.surface),
+          style: TextStyle(
+              fontWeight: FontWeight.w600, color: defaultColorScheme.surface),
         ),
         actions: [
           TextButton(
@@ -195,7 +196,7 @@ class _HomeState extends State<Home> {
                     );
                   });
             },
-            child:  Icon(
+            child: Icon(
               Icons.add,
               color: defaultColorScheme.surface,
               size: 30,
@@ -204,10 +205,12 @@ class _HomeState extends State<Home> {
           totalValueExpenses > 0
               ? TextButton(
                   onPressed: () async {
+                    context.loaderOverlay.show();
                     await ExportUtils()
                         .exportToXLSX(context, monthAndYear, expenses);
+                    context.loaderOverlay.hide();
                   },
-                  child:  Icon(
+                  child: Icon(
                     Icons.share,
                     size: 22,
                     color: defaultColorScheme.surface,
@@ -228,127 +231,143 @@ class _HomeState extends State<Home> {
             ),
           ),
           const Divider(height: 5),
-          SizedBox(
-            height: 500,
-            child: ListView.builder(
-                itemCount: expenses.length,
-                scrollDirection: Axis.vertical,
-                shrinkWrap: true,
-                itemBuilder: (BuildContext context, int indice) {
-                  var expense = expenses[indice];
+          Container(
+            padding: EdgeInsets.all(5),
+              height: 500,
+              child: Column(
+                // crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    AppLocalizations.of(context)!.expense,
+                    style: TextStyle( color: defaultColorScheme.onSurface, fontWeight: FontWeight.bold, fontSize: 18),
+                  ),
+                  ListView.builder(
+                      itemCount: expenses.length,
+                      scrollDirection: Axis.vertical,
+                      shrinkWrap: true,
+                      itemBuilder: (BuildContext context, int indice) {
+                        var expense = expenses[indice];
 
-                  return Dismissible(
-                    onResize: () {
-                      widget.database
-                          .delete(widget.database.expense)
-                          .deleteReturning(expense);
-                    },
-                    direction: DismissDirection.startToEnd,
-                    confirmDismiss: (direction) async {
-                      return await showDialog(
-                          context: context,
-                          builder: (builder) {
-                            return AlertDialog(
-                              title:
-                                  Text(AppLocalizations.of(context)!.attention),
-                              content: Text(
-                                  AppLocalizations.of(context)!.removeQuestion),
-                              actions: <Widget>[
-                                TextButton(
-                                  style: TextButton.styleFrom(
-                                    textStyle:
-                                        Theme.of(context).textTheme.labelLarge,
-                                  ),
-                                  child: Text(AppLocalizations.of(context)!.no),
-                                  onPressed: () {
-                                    Navigator.of(context).pop(false);
-                                  },
-                                ),
-                                TextButton(
-                                  style: TextButton.styleFrom(
-                                    textStyle:
-                                        Theme.of(context).textTheme.labelLarge,
-                                  ),
-                                  child:
-                                      Text(AppLocalizations.of(context)!.yes),
-                                  onPressed: () {
-                                    Navigator.of(context).pop(true);
-                                  },
-                                ),
-                              ],
-                            );
-                          });
-                    },
-                    key: Key(expense.name),
-                    child: Container(
-                        decoration: BoxDecoration(
-                          color: expense.fixed
-                              ? defaultColorScheme.onTertiary
-                              : defaultColorScheme.onSecondary,
-                          border: Border(
-                              left: BorderSide(
-                                  color: expense.fixed
-                                      ? defaultColorScheme.tertiary
-                                      : defaultColorScheme.secondary,
-                                  width: 5)),
-                        ),
-                        padding: const EdgeInsets.all(7),
-                        margin: const EdgeInsets.fromLTRB(10, 0, 10, 10),
-                        child: Column(
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  DateFormat('dd/MM/yyyy')
-                                      .format(expense.expenseDate),
-                                  style: TextStyle(
-                                      color: expense.fixed
-                                          ? defaultColorScheme.tertiary
-                                          : defaultColorScheme.secondary,
-                                      fontWeight: FontWeight.w500),
-                                ),
-                                Icon(Icons.chevron_right,
-                                    size: 15,
-                                    color: expense.fixed
-                                        ? defaultColorScheme.tertiary
-                                        : defaultColorScheme.secondary)
-                              ],
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Flexible(
-                                  child: Text(
-                                    "${expense.title} - ${expense.name}",
-                                    overflow: TextOverflow.ellipsis,
-                                    style: TextStyle(
-                                        fontSize: 14,
+                        return Dismissible(
+                          onResize: () {
+                            widget.database
+                                .delete(widget.database.expense)
+                                .deleteReturning(expense);
+                          },
+                          direction: DismissDirection.startToEnd,
+                          confirmDismiss: (direction) async {
+                            return await showDialog(
+                                context: context,
+                                builder: (builder) {
+                                  return AlertDialog(
+                                    title: Text(AppLocalizations.of(context)!
+                                        .attention),
+                                    content: Text(AppLocalizations.of(context)!
+                                        .removeQuestion),
+                                    actions: <Widget>[
+                                      TextButton(
+                                        style: TextButton.styleFrom(
+                                          textStyle: Theme.of(context)
+                                              .textTheme
+                                              .labelLarge,
+                                        ),
+                                        child: Text(
+                                            AppLocalizations.of(context)!.no),
+                                        onPressed: () {
+                                          Navigator.of(context).pop(false);
+                                        },
+                                      ),
+                                      TextButton(
+                                        style: TextButton.styleFrom(
+                                          textStyle: Theme.of(context)
+                                              .textTheme
+                                              .labelLarge,
+                                        ),
+                                        child: Text(
+                                            AppLocalizations.of(context)!.yes),
+                                        onPressed: () {
+                                          Navigator.of(context).pop(true);
+                                        },
+                                      ),
+                                    ],
+                                  );
+                                });
+                          },
+                          key: Key(expense.name),
+                          child: Container(
+                              decoration: BoxDecoration(
+                                color: expense.fixed
+                                    ? defaultColorScheme.onTertiary
+                                    : defaultColorScheme.onSecondary,
+                                border: Border(
+                                    left: BorderSide(
                                         color: expense.fixed
                                             ? defaultColorScheme.tertiary
                                             : defaultColorScheme.secondary,
-                                        fontWeight: FontWeight.w400),
+                                        width: 5)),
+                              ),
+                              padding: const EdgeInsets.all(7),
+                              margin: const EdgeInsets.fromLTRB(10, 0, 10, 10),
+                              child: Column(
+                                children: [
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        DateFormat('dd/MM/yyyy')
+                                            .format(expense.expenseDate),
+                                        style: TextStyle(
+                                            color: expense.fixed
+                                                ? defaultColorScheme.tertiary
+                                                : defaultColorScheme.secondary,
+                                            fontWeight: FontWeight.w500),
+                                      ),
+                                      Icon(Icons.chevron_right,
+                                          size: 15,
+                                          color: expense.fixed
+                                              ? defaultColorScheme.tertiary
+                                              : defaultColorScheme.secondary)
+                                    ],
                                   ),
-                                ),
-                                Text(
-                                  NumberFormat.simpleCurrency(
-                                          locale: Intl.systemLocale)
-                                      .format(expense.value),
-                                  style: TextStyle(
-                                      fontSize: 17,
-                                      fontWeight: FontWeight.bold,
-                                      color: expense.fixed
-                                          ? defaultColorScheme.tertiary
-                                          : defaultColorScheme.secondary),
-                                ),
-                              ],
-                            ),
-                          ],
-                        )),
-                  );
-                }),
-          )
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      Flexible(
+                                        child: Text(
+                                          "${expense.title} - ${expense.name}",
+                                          overflow: TextOverflow.ellipsis,
+                                          style: TextStyle(
+                                              fontSize: 14,
+                                              color: expense.fixed
+                                                  ? defaultColorScheme.tertiary
+                                                  : defaultColorScheme
+                                                      .secondary,
+                                              fontWeight: FontWeight.w400),
+                                        ),
+                                      ),
+                                      Text(
+                                        NumberFormat.simpleCurrency(
+                                                locale: locale.languageCode)
+                                            .format(expense.value),
+                                        style: TextStyle(
+                                            fontSize: 17,
+                                            fontWeight: FontWeight.bold,
+                                            color: expense.fixed
+                                                ? defaultColorScheme.tertiary
+                                                : defaultColorScheme.secondary),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              )),
+                        );
+                      }),
+                ],
+              ))
         ],
       )),
       bottomSheet: Container(
@@ -358,9 +377,12 @@ class _HomeState extends State<Home> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(AppLocalizations.of(context)!.total,
-                style: TextStyle(color: defaultColorScheme.surface, fontSize: 18, fontWeight: FontWeight.bold)),
+                style: TextStyle(
+                    color: defaultColorScheme.surface,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold)),
             Text(
-              NumberFormat.simpleCurrency(locale: Intl.systemLocale)
+              NumberFormat.simpleCurrency(locale: locale.languageCode)
                   .format(totalValueExpenses),
               style: TextStyle(
                   color: defaultColorScheme.surface,

@@ -1,5 +1,4 @@
 import 'package:fake_wallet/database.dart';
-import 'package:fake_wallet/screens/database.dart';
 import 'package:fake_wallet/screens/home.dart';
 import 'package:fake_wallet/widgets/db.dart';
 import 'package:flutter/material.dart';
@@ -52,7 +51,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(useMaterial3: true, colorScheme: lightColorScheme),
       darkTheme: ThemeData(useMaterial3: true, colorScheme: darkColorScheme),
       home: LoaderOverlay(
-        overlayColor: Colors.grey,
+        overlayColor: Color.fromARGB(68, 187, 187, 184),
         child: Db(
             appDatabase: database,
             child: Builder(

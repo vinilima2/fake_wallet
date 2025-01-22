@@ -98,7 +98,7 @@ class _ExpensiveFormState extends State<ExpensiveForm> {
                 onChanged: (text) => expensive.value = text,
                 inputFormatters: [
                   FilteringTextInputFormatter.digitsOnly,
-                  CurrencyInputFormatter()
+                  CurrencyInputFormatter(context: context)
                 ],
                 keyboardType:
                     const TextInputType.numberWithOptions(decimal: true),

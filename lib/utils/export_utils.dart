@@ -10,12 +10,11 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:share_plus/share_plus.dart';
 
 class ExportUtils {
-
-  Future<void> exportToXLSX(BuildContext context, String monthAndYear, List<ExpenseData> expenses) async {
+  Future<void> exportToXLSX(BuildContext context, String monthAndYear,
+      List<ExpenseData> expenses) async {
     List<int>? fileBytes = await getSheet(context, monthAndYear, expenses);
     Directory directory = await saveFileTemporary(fileBytes);
-    await Share.shareXFiles(
-        [XFile("${directory.path}/temp-file.xlsx")]);
+    await Share.shareXFiles([XFile("${directory.path}/temp-file.xlsx")]);
   }
 
   Future<Directory> saveFileTemporary(List<int>? fileBytes) async {
@@ -26,8 +25,10 @@ class ExportUtils {
     return directory;
   }
 
-  Future<List<int>?> getSheet(BuildContext context, String monthAndYear, List<ExpenseData> expenses) async {
+  Future<List<int>?> getSheet(BuildContext context, String monthAndYear,
+      List<ExpenseData> expenses) async {
     var excel = Excel.createExcel();
+    final Locale locale = Localizations.localeOf(context);
 
     Sheet sheetObject = excel[excel.getDefaultSheet()!];
 
@@ -36,8 +37,7 @@ class ExportUtils {
       verticalAlign: VerticalAlign.Center,
       fontFamily: getFontFamily(FontFamily.Arial),
       fontSize: 12,
-      numberFormat: const CustomDateTimeNumFormat(
-          formatCode: 'dd/MM/yyyy'),
+      numberFormat: const CustomDateTimeNumFormat(formatCode: 'dd/MM/yyyy'),
     );
 
     var cell = sheetObject.cell(CellIndex.indexByString('A1'));
@@ -48,8 +48,7 @@ class ExportUtils {
     excel.merge(
         excel.getDefaultSheet()!,
         CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: 0),
-        CellIndex.indexByColumnRow(
-            columnIndex: 3, rowIndex: 0));
+        CellIndex.indexByColumnRow(columnIndex: 3, rowIndex: 0));
 
     excel.appendRow(excel.getDefaultSheet()!, [
       TextCellValue(AppLocalizations.of(context)!.title),
@@ -61,10 +60,8 @@ class ExportUtils {
     expenses.forEach((expense) {
       excel.appendRow(excel.getDefaultSheet()!, [
         TextCellValue(expense.title),
-        TextCellValue(DateFormat('dd/MM/yyyy')
-            .format(expense.expenseDate)),
-        TextCellValue(NumberFormat.simpleCurrency(
-            locale: Intl.systemLocale)
+        TextCellValue(DateFormat('dd/MM/yyyy').format(expense.expenseDate)),
+        TextCellValue(NumberFormat.simpleCurrency(locale: locale.languageCode)
             .format(expense.value)),
         IntCellValue(expense.category)
       ]);
@@ -76,6 +73,4 @@ class ExportUtils {
     var fileBytes = excel.save();
     return fileBytes;
   }
-
-
 }
