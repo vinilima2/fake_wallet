@@ -37,9 +37,9 @@ class _ExpensiveFormState extends State<ExpensiveForm> {
     'Health': 0xe305
   };
 
-
   @override
   Widget build(BuildContext context) {
+    final defaultColorScheme = Theme.of(context).colorScheme;
     return Form(
       child: SingleChildScrollView(
         child: SizedBox(
@@ -60,18 +60,18 @@ class _ExpensiveFormState extends State<ExpensiveForm> {
                     .map<DropdownMenuEntry<CategoryData>>(
                         (CategoryData category) {
                   return DropdownMenuEntry<CategoryData>(
-                    style: ButtonStyle(
-                      backgroundColor: WidgetStatePropertyAll(Colors.white)
-                    ),
-                    value: category,
-                    label: category.description,
-                    labelWidget: Row(
-                      children: [
-                        Icon(IconData(iconMap[category.icon]!, fontFamily: 'MaterialIcons')),
-                        Text(category.description)
-                      ],
-                    )
-                  );
+                      style: ButtonStyle(
+                          backgroundColor:
+                              WidgetStatePropertyAll(defaultColorScheme.surface)),
+                      value: category,
+                      label: category.description,
+                      labelWidget: Row(
+                        children: [
+                          Icon(IconData(iconMap[category.icon]!,
+                              fontFamily: 'MaterialIcons'), color: defaultColorScheme.onSurface,),
+                          Text(category.description)
+                        ],
+                      ));
                 }).toList(),
               ),
               TextFormField(
@@ -79,14 +79,16 @@ class _ExpensiveFormState extends State<ExpensiveForm> {
                 initialValue: expensive.title,
                 onChanged: (text) => expensive.title = text,
                 maxLength: 50,
-                decoration:
-                    InputDecoration(counterText: '', labelText: AppLocalizations.of(context)!.title),
+                decoration: InputDecoration(
+                    counterText: '',
+                    labelText: AppLocalizations.of(context)!.title),
               ),
               TextFormField(
                 textCapitalization: TextCapitalization.characters,
                 initialValue: expensive.name,
                 onChanged: (text) => expensive.name = text,
-                decoration: InputDecoration(labelText: AppLocalizations.of(context)!.description),
+                decoration: InputDecoration(
+                    labelText: AppLocalizations.of(context)!.description),
               ),
               Container(
                 height: 20,
@@ -100,7 +102,8 @@ class _ExpensiveFormState extends State<ExpensiveForm> {
                 ],
                 keyboardType:
                     const TextInputType.numberWithOptions(decimal: true),
-                decoration: InputDecoration(labelText: AppLocalizations.of(context)!.value),
+                decoration: InputDecoration(
+                    labelText: AppLocalizations.of(context)!.value),
               ),
               TextFormField(
                 initialValue: expensive.expenseDate,
@@ -110,12 +113,13 @@ class _ExpensiveFormState extends State<ExpensiveForm> {
                   DateInputFormatter()
                 ],
                 keyboardType: TextInputType.datetime,
-                decoration: InputDecoration(labelText: AppLocalizations.of(context)!.expenseDate),
+                decoration: InputDecoration(
+                    labelText: AppLocalizations.of(context)!.expenseDate),
               ),
               Row(
                 children: [
                   Checkbox(
-                      focusColor: Colors.blue,
+                      focusColor: defaultColorScheme.onSurface,
                       value: expensive.fixed,
                       onChanged: (value) {
                         setState(() {
@@ -125,20 +129,27 @@ class _ExpensiveFormState extends State<ExpensiveForm> {
                   Text(AppLocalizations.of(context)!.fixed)
                 ],
               ),
-              expensive.fixed ? TextFormField(
-                initialValue: expensive.numberMonthsOfFixedExpense.toString(),
-                onChanged: (text) => expensive.numberMonthsOfFixedExpense = int.parse(text),
-                keyboardType: TextInputType.number,
-                maxLength: 2,
-                decoration: InputDecoration(labelText: AppLocalizations.of(context)!.numberOfMonth),
-              ) : Container(),
+              expensive.fixed
+                  ? TextFormField(
+                      initialValue:
+                          expensive.numberMonthsOfFixedExpense.toString(),
+                      onChanged: (text) => expensive
+                          .numberMonthsOfFixedExpense = int.parse(text),
+                      keyboardType: TextInputType.number,
+                      maxLength: 2,
+                      decoration: InputDecoration(
+                          labelText:
+                              AppLocalizations.of(context)!.numberOfMonth),
+                    )
+                  : Container(),
               FilledButton(
                 onPressed: () {
                   widget.onSave(expensive);
                 },
-                child: Text(AppLocalizations.of(context)!.save),
+                child: Text(AppLocalizations.of(context)!.save, style: TextStyle(color: defaultColorScheme.surface),),
                 style: ButtonStyle(
-                    backgroundColor: WidgetStatePropertyAll(Colors.blue.shade900),
+                    backgroundColor:
+                        WidgetStatePropertyAll(defaultColorScheme.onSurface),
                     fixedSize: MaterialStatePropertyAll(Size(1000, 50))),
               )
             ],

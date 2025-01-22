@@ -29,10 +29,6 @@ class _ChartState extends State<Chart> {
     'Health': 0xe305
   };
 
-  @override
-  void initState() {
-    print(widget.expenses);
-  }
 
   static const List<MaterialColor> colors = [
     Colors.green,
@@ -51,6 +47,8 @@ class _ChartState extends State<Chart> {
   int touchedIndex = -1;
 
   List<PieChartSectionData> showingSections() {
+     final defaultColorScheme = Theme.of(context).colorScheme;
+     
     return widget.expenses.map((i) {
       final isTouched = widget.expenses.indexOf(i) == touchedIndex;
       final fontSize = isTouched ? 16.0 : 14.0;
@@ -65,17 +63,17 @@ class _ChartState extends State<Chart> {
         titleStyle: TextStyle(
           fontSize: fontSize,
           fontWeight: FontWeight.bold,
-          color: const Color(0xffffffff),
+          color: defaultColorScheme.surface,
           shadows: shadows,
         ),
         badgeWidget: Container(
           padding: EdgeInsets.all(5),
           decoration: BoxDecoration(
-              color: Colors.blue.shade900,
+              color: defaultColorScheme.onSurface,
               borderRadius: BorderRadius.all(Radius.circular(20))),
           child: Icon(
             IconData(iconMap[i['icon']]! as int, fontFamily: 'MaterialIcons'),
-            color: Colors.white,
+            color: defaultColorScheme.surface,
           ),
         ),
         badgePositionPercentageOffset: .98,

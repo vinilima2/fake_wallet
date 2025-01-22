@@ -80,7 +80,7 @@ class _HomeState extends State<Home> {
             category: expensive.category));
 
     if (expensive.fixed) {
-     await insertFixedExpense(expensive);
+      await insertFixedExpense(expensive);
     }
     Navigator.of(context).pop();
     await Future.delayed(Duration(seconds: 1));
@@ -167,12 +167,13 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
+    final defaultColorScheme = Theme.of(context).colorScheme;
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.blue.shade900,
-        title: const Text(
+        backgroundColor: defaultColorScheme.onSurface,
+        title:  Text(
           'Fake Wallet',
-          style: TextStyle(fontWeight: FontWeight.w600, color: Colors.white),
+          style: TextStyle(fontWeight: FontWeight.w600, color: defaultColorScheme.surface),
         ),
         actions: [
           TextButton(
@@ -182,7 +183,10 @@ class _HomeState extends State<Home> {
                   builder: (builder) {
                     return AlertDialog(
                       title: Text(AppLocalizations.of(context)!.newExpense),
-                      titleTextStyle: TextStyle(fontWeight: FontWeight.bold, color: Colors.blue.shade900, fontSize: 20),
+                      titleTextStyle: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: defaultColorScheme.onSurface,
+                          fontSize: 20),
                       content: ExpensiveForm(
                           onSave: (ex) {
                             insertExpense(ex);
@@ -191,10 +195,9 @@ class _HomeState extends State<Home> {
                     );
                   });
             },
-            // backgroundColor: Colors.redAccent,
-            child: const Icon(
+            child:  Icon(
               Icons.add,
-              color: Color.fromARGB(255, 255, 255, 255),
+              color: defaultColorScheme.surface,
               size: 30,
             ),
           ),
@@ -204,10 +207,10 @@ class _HomeState extends State<Home> {
                     await ExportUtils()
                         .exportToXLSX(context, monthAndYear, expenses);
                   },
-                  child: const Icon(
+                  child:  Icon(
                     Icons.share,
                     size: 22,
-                    color: Color.fromARGB(255, 255, 255, 255),
+                    color: defaultColorScheme.surface,
                   ))
               : Container()
         ],
@@ -280,13 +283,13 @@ class _HomeState extends State<Home> {
                     child: Container(
                         decoration: BoxDecoration(
                           color: expense.fixed
-                              ? Colors.grey.shade100
-                              : Colors.white60,
+                              ? defaultColorScheme.onTertiary
+                              : defaultColorScheme.onSecondary,
                           border: Border(
                               left: BorderSide(
                                   color: expense.fixed
-                                      ? Colors.grey.shade600
-                                      : Colors.lightBlueAccent,
+                                      ? defaultColorScheme.tertiary
+                                      : defaultColorScheme.secondary,
                                   width: 5)),
                         ),
                         padding: const EdgeInsets.all(7),
@@ -301,15 +304,15 @@ class _HomeState extends State<Home> {
                                       .format(expense.expenseDate),
                                   style: TextStyle(
                                       color: expense.fixed
-                                          ? Colors.grey.shade600
-                                          : Colors.lightBlueAccent,
+                                          ? defaultColorScheme.tertiary
+                                          : defaultColorScheme.secondary,
                                       fontWeight: FontWeight.w500),
                                 ),
                                 Icon(Icons.chevron_right,
                                     size: 15,
                                     color: expense.fixed
-                                        ? Colors.grey.shade600
-                                        : Colors.lightBlueAccent)
+                                        ? defaultColorScheme.tertiary
+                                        : defaultColorScheme.secondary)
                               ],
                             ),
                             Row(
@@ -323,8 +326,8 @@ class _HomeState extends State<Home> {
                                     style: TextStyle(
                                         fontSize: 14,
                                         color: expense.fixed
-                                            ? Colors.grey.shade600
-                                            : Colors.lightBlueAccent,
+                                            ? defaultColorScheme.tertiary
+                                            : defaultColorScheme.secondary,
                                         fontWeight: FontWeight.w400),
                                   ),
                                 ),
@@ -336,8 +339,8 @@ class _HomeState extends State<Home> {
                                       fontSize: 17,
                                       fontWeight: FontWeight.bold,
                                       color: expense.fixed
-                                          ? Colors.grey.shade600
-                                          : Colors.lightBlueAccent),
+                                          ? defaultColorScheme.tertiary
+                                          : defaultColorScheme.secondary),
                                 ),
                               ],
                             ),
@@ -349,18 +352,18 @@ class _HomeState extends State<Home> {
         ],
       )),
       bottomSheet: Container(
-        color: Colors.blue.shade900,
+        color: defaultColorScheme.onSurface,
         padding: EdgeInsets.all(3),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(AppLocalizations.of(context)!.total,
-                style: TextStyle(color: Colors.white, fontSize: 18)),
+                style: TextStyle(color: defaultColorScheme.surface, fontSize: 18, fontWeight: FontWeight.bold)),
             Text(
               NumberFormat.simpleCurrency(locale: Intl.systemLocale)
                   .format(totalValueExpenses),
               style: TextStyle(
-                  color: Colors.white,
+                  color: defaultColorScheme.surface,
                   fontWeight: FontWeight.bold,
                   fontSize: 20),
             ),

@@ -24,27 +24,28 @@ class _HeaderState extends State<Header> {
 
   @override
   Widget build(BuildContext context) {
+    final defaultColorScheme = Theme.of(context).colorScheme;
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: [
         IconButton(
-          icon: Icon(Icons.chevron_left, size: 35, color: Colors.blue.shade900),
+          icon: Icon(Icons.chevron_left, size: 35, color: defaultColorScheme.onSurface),
           onPressed: () => addOrSubstractMonth(add: false),
         ),
         Container(
           padding: EdgeInsets.all(5),
           decoration: BoxDecoration(
-            color: Colors.blue.shade900,
-            borderRadius: BorderRadius.all(Radius.circular(5))
-          ),
+              color: defaultColorScheme.onSurface,
+              borderRadius: BorderRadius.all(Radius.circular(5))),
           child: Text(
             literal(),
-            style:  TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.white ),
+            style: TextStyle(
+                fontWeight: FontWeight.bold, fontSize: 18, color: defaultColorScheme.surface),
           ),
         ),
         IconButton(
           icon:
-              Icon(Icons.chevron_right, size: 35, color: Colors.blue.shade900),
+              Icon(Icons.chevron_right, size: 35, color: defaultColorScheme.onSurface),
           onPressed: () => addOrSubstractMonth(),
         ),
       ],
