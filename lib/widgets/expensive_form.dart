@@ -49,6 +49,7 @@ class _ExpensiveFormState extends State<ExpensiveForm> {
           child: Column(
             children: [
               DropdownMenu<CategoryData>(
+                key: Key('category'),
                 width: 250,
                 initialSelection: null,
                 requestFocusOnTap: false,
@@ -75,6 +76,7 @@ class _ExpensiveFormState extends State<ExpensiveForm> {
                 }).toList(),
               ),
               TextFormField(
+                key: Key('title'),
                 textCapitalization: TextCapitalization.characters,
                 initialValue: expensive.title,
                 onChanged: (text) => expensive.title = text,
@@ -84,6 +86,7 @@ class _ExpensiveFormState extends State<ExpensiveForm> {
                     labelText: AppLocalizations.of(context)!.title),
               ),
               TextFormField(
+                key: Key('name'),
                 textCapitalization: TextCapitalization.characters,
                 initialValue: expensive.name,
                 onChanged: (text) => expensive.name = text,
@@ -94,6 +97,7 @@ class _ExpensiveFormState extends State<ExpensiveForm> {
                 height: 20,
               ),
               TextFormField(
+                key: Key('value'),
                 initialValue: expensive.value,
                 onChanged: (text) => expensive.value = text,
                 inputFormatters: [
@@ -106,6 +110,7 @@ class _ExpensiveFormState extends State<ExpensiveForm> {
                     labelText: AppLocalizations.of(context)!.value),
               ),
               TextFormField(
+                key: Key('expenseDate'),
                 initialValue: expensive.expenseDate,
                 onChanged: (text) => expensive.expenseDate = text,
                 inputFormatters: [
@@ -143,14 +148,15 @@ class _ExpensiveFormState extends State<ExpensiveForm> {
                     )
                   : Container(),
               FilledButton(
+                key: Key('saveButton'),
                 onPressed: () {
                   widget.onSave(expensive);
                 },
-                child: Text(AppLocalizations.of(context)!.save, style: TextStyle(color: defaultColorScheme.surface),),
                 style: ButtonStyle(
                     backgroundColor:
                         WidgetStatePropertyAll(defaultColorScheme.onSurface),
                     fixedSize: MaterialStatePropertyAll(Size(1000, 50))),
+                child: Text(AppLocalizations.of(context)!.save, style: TextStyle(color: defaultColorScheme.surface),),
               )
             ],
           ),

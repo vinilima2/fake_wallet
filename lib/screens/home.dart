@@ -178,6 +178,7 @@ class _HomeState extends State<Home> {
         ),
         actions: [
           TextButton(
+            key: const Key('call_add_expense'),
             onPressed: () {
               showDialog(
                   context: context,
@@ -189,6 +190,7 @@ class _HomeState extends State<Home> {
                           color: defaultColorScheme.onSurface,
                           fontSize: 20),
                       content: ExpensiveForm(
+                          key: const Key('expense_form'),
                           onSave: (ex) {
                             insertExpense(ex);
                           },
@@ -232,14 +234,17 @@ class _HomeState extends State<Home> {
           ),
           const Divider(height: 5),
           Container(
-            padding: EdgeInsets.all(5),
+              padding: EdgeInsets.all(5),
               height: 500,
               child: Column(
                 // crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     AppLocalizations.of(context)!.expense,
-                    style: TextStyle( color: defaultColorScheme.onSurface, fontWeight: FontWeight.bold, fontSize: 18),
+                    style: TextStyle(
+                        color: defaultColorScheme.onSurface,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18),
                   ),
                   ListView.builder(
                       itemCount: expenses.length,
