@@ -1,10 +1,10 @@
 import 'package:drift/drift.dart' as drift;
 import 'package:fake_wallet/database.dart';
-import 'package:fake_wallet/models/expensive.dart';
-import 'package:fake_wallet/utils/database.dart';
+import 'package:fake_wallet/models/expense_model.dart';
+import 'package:fake_wallet/utils/database_utils.dart';
 import 'package:fake_wallet/utils/export_utils.dart';
 import 'package:fake_wallet/widgets/chart.dart';
-import 'package:fake_wallet/widgets/expensive_form.dart';
+import 'package:fake_wallet/widgets/expense_form.dart';
 import 'package:fake_wallet/widgets/header.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -55,7 +55,7 @@ class _HomeState extends State<Home> {
   Future<void> listAllCategories() async {
     var list = await widget.database.select(widget.database.category).get();
     if (list.isEmpty) {
-      Database db = Database(database: widget.database);
+      DatabaseUtils db = DatabaseUtils(database: widget.database);
       db.seedDatabaseWithCategories(context);
       listAllCategories();
     }
@@ -64,46 +64,46 @@ class _HomeState extends State<Home> {
     });
   }
 
-  void insertExpense(Expensive expensive) async {
+  void insertExpense(ExpenseModel expenseModel) async {
     context.loaderOverlay.show();
     await widget.database.into(widget.database.expense).insert(
         ExpenseCompanion.insert(
-            title: expensive.title,
-            name: expensive.name,
-            value: double.parse(expensive.value
+            title: expenseModel.title,
+            name: expenseModel.name,
+            value: double.parse(expenseModel.value
                 .replaceAll('.', '')
                 .replaceFirst(',', '.')
                 .replaceAll(RegExp(r"[^\d.]+"), '')),
-            fixed: expensive.fixed,
+            fixed: expenseModel.fixed,
             createdAt: DateTime.now(),
-            expenseDate: DateFormat('dd/MM/yyyy').parse(expensive.expenseDate),
-            category: expensive.category));
+            expenseDate: DateFormat('dd/MM/yyyy').parse(expenseModel.expenseDate),
+            category: expenseModel.category));
 
-    if (expensive.fixed) {
-      await insertFixedExpense(expensive);
+    if (expenseModel.fixed) {
+      await insertFixedExpense(expenseModel);
     }
     Navigator.of(context).pop();
     context.loaderOverlay.hide();
     listAllExpenses(null);
   }
 
-  Future<void> insertFixedExpense(Expensive expensive) async {
+  Future<void> insertFixedExpense(ExpenseModel expenseModel) async {
     DateTime actualDateTime =
-        DateFormat('dd/MM/yyyy').parse(expensive.expenseDate);
-    for (int i = 1; i <= expensive.numberMonthsOfFixedExpense; i++) {
+        DateFormat('dd/MM/yyyy').parse(expenseModel.expenseDate);
+    for (int i = 1; i <= expenseModel.numberMonthsOfFixedExpense; i++) {
       await widget.database.into(widget.database.expense).insert(
           ExpenseCompanion.insert(
-              title: expensive.title,
-              name: expensive.name,
-              value: double.parse(expensive.value
+              title: expenseModel.title,
+              name: expenseModel.name,
+              value: double.parse(expenseModel.value
                   .replaceAll('.', '')
                   .replaceFirst(',', '.')
                   .replaceAll(RegExp(r"[^\d.]+"), '')),
-              fixed: expensive.fixed,
+              fixed: expenseModel.fixed,
               createdAt: DateTime.now(),
               expenseDate: actualDateTime.copyWith(
                   day: 1, month: actualDateTime.month + i),
-              category: expensive.category));
+              category: expenseModel.category));
     }
   }
 
@@ -189,7 +189,7 @@ class _HomeState extends State<Home> {
                           fontWeight: FontWeight.bold,
                           color: defaultColorScheme.onSurface,
                           fontSize: 20),
-                      content: ExpensiveForm(
+                      content: ExpenseForm(
                           key: const Key('expense_form'),
                           onSave: (ex) {
                             insertExpense(ex);

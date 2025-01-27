@@ -1,4 +1,4 @@
-class Expensive {
+class ExpenseModel {
   String _title = '';
   String _name = '';
   String _expenseDate = '';

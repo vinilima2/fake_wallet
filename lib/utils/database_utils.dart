@@ -2,10 +2,10 @@ import 'package:fake_wallet/database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
-class Database {
+class DatabaseUtils {
   final AppDatabase database;
 
-  Database({required this.database});
+  DatabaseUtils({required this.database});
 
   static const iconMap = {
     0xe655: 'Theater',

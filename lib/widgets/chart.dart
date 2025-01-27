@@ -1,3 +1,4 @@
+import 'package:fake_wallet/utils/database_utils.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 
@@ -11,25 +12,6 @@ class Chart extends StatefulWidget {
 }
 
 class _ChartState extends State<Chart> {
-  static const iconMap = {
-    'Theater': 0xe655,
-    'Car Repair': 0xe13d,
-    'Energy': 0xe0ee,
-    'Water': 0xf03b4,
-    'FastFood': 0xe25a,
-    'Bus': 0xe11a,
-    'Credit Card': 0xe19f,
-    'Home': 0xe318,
-    'Fuel': 0xe394,
-    'Gas': 0xf07a4,
-    'Phone': 0xe5b7,
-    'School': 0xe559,
-    'Coffee': 0xe178,
-    'Another': 0xe309,
-    'Health': 0xe305
-  };
-
-
   static const List<MaterialColor> colors = [
     Colors.green,
     Colors.amber,
@@ -72,7 +54,7 @@ class _ChartState extends State<Chart> {
               color: defaultColorScheme.onSurface,
               borderRadius: BorderRadius.all(Radius.circular(20))),
           child: Icon(
-            IconData(iconMap[i['icon']]! as int, fontFamily: 'MaterialIcons'),
+            IconData(DatabaseUtils.iconMap[i['icon']]! as int, fontFamily: 'MaterialIcons'),
             color: defaultColorScheme.surface,
           ),
         ),

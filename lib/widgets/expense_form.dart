@@ -1,41 +1,25 @@
 import 'package:fake_wallet/database.dart';
-import 'package:fake_wallet/formatters/CurrencyInputFormatter.dart';
-import 'package:fake_wallet/formatters/DateInputFormatter.dart';
-import 'package:fake_wallet/models/expensive.dart';
+import 'package:fake_wallet/formatters/currency_input_formatter.dart';
+import 'package:fake_wallet/formatters/date_input_formatter.dart';
+import 'package:fake_wallet/models/expense_model.dart';
+import 'package:fake_wallet/utils/database_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
-class ExpensiveForm extends StatefulWidget {
-  final Function(Expensive) onSave;
+class ExpenseForm extends StatefulWidget {
+  final Function(ExpenseModel) onSave;
   final List<CategoryData> categories;
 
-  const ExpensiveForm(
+  const ExpenseForm(
       {super.key, required this.onSave, required this.categories});
 
   @override
-  State<StatefulWidget> createState() => _ExpensiveFormState();
+  State<StatefulWidget> createState() => _ExpenseFormState();
 }
 
-class _ExpensiveFormState extends State<ExpensiveForm> {
-  Expensive expensive = Expensive();
-  static const iconMap = {
-    'Theater': 0xe655,
-    'Car Repair': 0xe13d,
-    'Energy': 0xe0ee,
-    'Water': 0xf03b4,
-    'FastFood': 0xe25a,
-    'Bus': 0xe11a,
-    'Credit Card': 0xe19f,
-    'Home': 0xe318,
-    'Fuel': 0xe394,
-    'Gas': 0xf07a4,
-    'Phone': 0xe5b7,
-    'School': 0xe559,
-    'Coffee': 0xe178,
-    'Another': 0xe309,
-    'Health': 0xe305
-  };
+class _ExpenseFormState extends State<ExpenseForm> {
+  ExpenseModel expense = ExpenseModel();
 
   @override
   Widget build(BuildContext context) {
@@ -55,7 +39,7 @@ class _ExpensiveFormState extends State<ExpensiveForm> {
                 requestFocusOnTap: false,
                 label: Text(AppLocalizations.of(context)!.category),
                 onSelected: (CategoryData? category) {
-                  expensive.category = category!.id;
+                  expense.category = category!.id;
                 },
                 dropdownMenuEntries: widget.categories
                     .map<DropdownMenuEntry<CategoryData>>(
@@ -68,7 +52,7 @@ class _ExpensiveFormState extends State<ExpensiveForm> {
                       label: category.description,
                       labelWidget: Row(
                         children: [
-                          Icon(IconData(iconMap[category.icon]!,
+                          Icon(IconData(DatabaseUtils.iconMap[category.icon]! as int,
                               fontFamily: 'MaterialIcons'), color: defaultColorScheme.onSurface,),
                           Text(category.description)
                         ],
@@ -78,8 +62,8 @@ class _ExpensiveFormState extends State<ExpensiveForm> {
               TextFormField(
                 key: Key('title'),
                 textCapitalization: TextCapitalization.characters,
-                initialValue: expensive.title,
-                onChanged: (text) => expensive.title = text,
+                initialValue: expense.title,
+                onChanged: (text) => expense.title = text,
                 maxLength: 50,
                 decoration: InputDecoration(
                     counterText: '',
@@ -88,8 +72,8 @@ class _ExpensiveFormState extends State<ExpensiveForm> {
               TextFormField(
                 key: Key('name'),
                 textCapitalization: TextCapitalization.characters,
-                initialValue: expensive.name,
-                onChanged: (text) => expensive.name = text,
+                initialValue: expense.name,
+                onChanged: (text) => expense.name = text,
                 decoration: InputDecoration(
                     labelText: AppLocalizations.of(context)!.description),
               ),
@@ -98,8 +82,8 @@ class _ExpensiveFormState extends State<ExpensiveForm> {
               ),
               TextFormField(
                 key: Key('value'),
-                initialValue: expensive.value,
-                onChanged: (text) => expensive.value = text,
+                initialValue: expense.value,
+                onChanged: (text) => expense.value = text,
                 inputFormatters: [
                   FilteringTextInputFormatter.digitsOnly,
                   CurrencyInputFormatter(context: context)
@@ -111,8 +95,8 @@ class _ExpensiveFormState extends State<ExpensiveForm> {
               ),
               TextFormField(
                 key: Key('expenseDate'),
-                initialValue: expensive.expenseDate,
-                onChanged: (text) => expensive.expenseDate = text,
+                initialValue: expense.expenseDate,
+                onChanged: (text) => expense.expenseDate = text,
                 inputFormatters: [
                   FilteringTextInputFormatter.digitsOnly,
                   DateInputFormatter()
@@ -125,20 +109,20 @@ class _ExpensiveFormState extends State<ExpensiveForm> {
                 children: [
                   Checkbox(
                       focusColor: defaultColorScheme.onSurface,
-                      value: expensive.fixed,
+                      value: expense.fixed,
                       onChanged: (value) {
                         setState(() {
-                          expensive.fixed = value!;
+                          expense.fixed = value!;
                         });
                       }),
                   Text(AppLocalizations.of(context)!.fixed)
                 ],
               ),
-              expensive.fixed
+              expense.fixed
                   ? TextFormField(
                       initialValue:
-                          expensive.numberMonthsOfFixedExpense.toString(),
-                      onChanged: (text) => expensive
+                          expense.numberMonthsOfFixedExpense.toString(),
+                      onChanged: (text) => expense
                           .numberMonthsOfFixedExpense = int.parse(text),
                       keyboardType: TextInputType.number,
                       maxLength: 2,
@@ -150,7 +134,7 @@ class _ExpensiveFormState extends State<ExpensiveForm> {
               FilledButton(
                 key: Key('saveButton'),
                 onPressed: () {
-                  widget.onSave(expensive);
+                  widget.onSave(expense);
                 },
                 style: ButtonStyle(
                     backgroundColor:
