@@ -16,14 +16,14 @@ class ThemeUtils {
 
   static final darkColorScheme = ColorScheme(
       brightness: Brightness.dark,
-      primary: Colors.blue.shade900,
-      onPrimary: Colors.blue.shade900,
-      secondary: Colors.blue.shade300,
+      primary: Colors.blue.shade800,
+      onPrimary: Colors.blue.shade800,
+      secondary: Colors.blue.shade600,
       onSecondary: Colors.blueGrey.shade900,
       tertiary: Colors.amberAccent.shade700,
       onTertiary: const Color.fromARGB(255, 137, 137, 2),
-      error: Colors.blue.shade900,
-      onError: Colors.blue.shade900,
+      error: Colors.blue.shade800,
+      onError: Colors.blue.shade800,
       surface: Colors.black,
       onSurface: Colors.blue.shade800);
 
