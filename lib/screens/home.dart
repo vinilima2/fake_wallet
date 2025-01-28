@@ -2,6 +2,7 @@ import 'package:fake_wallet/database.dart';
 import 'package:fake_wallet/models/expense_model.dart';
 import 'package:fake_wallet/utils/database_utils.dart';
 import 'package:fake_wallet/utils/export_utils.dart';
+import 'package:fake_wallet/utils/date_utils.dart' as myDateUtils;
 import 'package:fake_wallet/widgets/chart.dart';
 import 'package:fake_wallet/widgets/expense_form.dart';
 import 'package:fake_wallet/widgets/header.dart';
@@ -25,6 +26,7 @@ class _HomeState extends State<Home> {
   List<ExpenseData> expenses = [];
   List<CategoryData> categories = [];
   List<Map<String, dynamic>> finalList = [];
+  String monthAndYear = myDateUtils.DateUtils.now();
   double totalValueExpenses = 0;
 
   late DatabaseUtils db;
@@ -36,7 +38,7 @@ class _HomeState extends State<Home> {
       Navigator.of(context).pop();
       context.loaderOverlay.hide();
     }
-    db.listAllExpenses(null).then((list) {
+    db.listAllExpenses(monthAndYear).then((list) {
       setState(() {
         expenses = list;
       });
@@ -98,7 +100,7 @@ class _HomeState extends State<Home> {
         categories = list;
       });
 
-      db.listAllExpenses(null).then((list) {
+      db.listAllExpenses(monthAndYear).then((list) {
         setState(() {
           expenses = list;
         });
@@ -175,6 +177,9 @@ class _HomeState extends State<Home> {
           child: Column(
         children: [
           Header(callback: (date) {
+            setState(() {
+              monthAndYear = date;
+            });
             db.listAllExpenses(date).then((list) {
               setState(() {
                 expenses = list;
@@ -202,136 +207,140 @@ class _HomeState extends State<Home> {
                         fontWeight: FontWeight.bold,
                         fontSize: 18),
                   ),
-                  ListView.builder(
-                      itemCount: expenses.length,
-                      scrollDirection: Axis.vertical,
-                      shrinkWrap: true,
-                      itemBuilder: (BuildContext context, int indice) {
-                        var expense = expenses[indice];
-
-                        return Dismissible(
-                          onResize: () {
-                            widget.database
-                                .delete(widget.database.expense)
-                                .deleteReturning(expense);
-                          },
-                          direction: DismissDirection.startToEnd,
-                          confirmDismiss: (direction) async {
-                            return await showDialog(
-                                context: context,
-                                builder: (builder) {
-                                  return AlertDialog(
-                                    title: Text(AppLocalizations.of(context)!
-                                        .attention),
-                                    content: Text(AppLocalizations.of(context)!
-                                        .removeQuestion),
-                                    actions: <Widget>[
-                                      TextButton(
-                                        style: TextButton.styleFrom(
-                                          textStyle: Theme.of(context)
-                                              .textTheme
-                                              .labelLarge,
+                  Expanded(
+                    child: ListView.builder(
+                        itemCount: expenses.length,
+                        scrollDirection: Axis.vertical,
+                        shrinkWrap: true,
+                        itemBuilder: (BuildContext context, int indice) {
+                          var expense = expenses[indice];
+                          return Dismissible(
+                            onResize: () {
+                              widget.database
+                                  .delete(widget.database.expense)
+                                  .deleteReturning(expense);
+                            },
+                            direction: DismissDirection.startToEnd,
+                            confirmDismiss: (direction) async {
+                              return await showDialog(
+                                  context: context,
+                                  builder: (builder) {
+                                    return AlertDialog(
+                                      title: Text(AppLocalizations.of(context)!
+                                          .attention),
+                                      content: Text(AppLocalizations.of(context)!
+                                          .removeQuestion),
+                                      actions: <Widget>[
+                                        TextButton(
+                                          style: TextButton.styleFrom(
+                                            textStyle: Theme.of(context)
+                                                .textTheme
+                                                .labelLarge,
+                                          ),
+                                          child: Text(
+                                              AppLocalizations.of(context)!.no),
+                                          onPressed: () {
+                                            Navigator.of(context).pop(false);
+                                          },
                                         ),
-                                        child: Text(
-                                            AppLocalizations.of(context)!.no),
-                                        onPressed: () {
-                                          Navigator.of(context).pop(false);
-                                        },
-                                      ),
-                                      TextButton(
-                                        style: TextButton.styleFrom(
-                                          textStyle: Theme.of(context)
-                                              .textTheme
-                                              .labelLarge,
+                                        TextButton(
+                                          style: TextButton.styleFrom(
+                                            textStyle: Theme.of(context)
+                                                .textTheme
+                                                .labelLarge,
+                                          ),
+                                          child: Text(
+                                              AppLocalizations.of(context)!.yes),
+                                          onPressed: () {
+                                            Navigator.of(context).pop(true);
+                                          },
                                         ),
-                                        child: Text(
-                                            AppLocalizations.of(context)!.yes),
-                                        onPressed: () {
-                                          Navigator.of(context).pop(true);
-                                        },
-                                      ),
-                                    ],
-                                  );
-                                });
-                          },
-                          key: Key(expense.name),
-                          child: Container(
-                              decoration: BoxDecoration(
-                                color: expense.fixed
-                                    ? defaultColorScheme.onTertiary
-                                    : defaultColorScheme.onSecondary,
-                                border: Border(
-                                    left: BorderSide(
-                                        color: expense.fixed
-                                            ? defaultColorScheme.tertiary
-                                            : defaultColorScheme.secondary,
-                                        width: 5)),
-                              ),
-                              padding: const EdgeInsets.all(7),
-                              margin: const EdgeInsets.fromLTRB(10, 0, 10, 10),
-                              child: Column(
-                                children: [
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Text(
-                                        DateFormat('dd/MM/yyyy')
-                                            .format(expense.expenseDate),
-                                        style: TextStyle(
-                                            color: expense.fixed
-                                                ? defaultColorScheme.tertiary
-                                                : defaultColorScheme.secondary,
-                                            fontWeight: FontWeight.w500),
-                                      ),
-                                      Icon(Icons.chevron_right,
-                                          size: 15,
+                                      ],
+                                    );
+                                  });
+                            },
+                            key: Key(expense.name),
+                            child: Container(
+                                decoration: BoxDecoration(
+                                  color: expense.fixed
+                                      ? defaultColorScheme.onTertiary
+                                      : defaultColorScheme.onSecondary,
+                                  border: Border(
+                                      left: BorderSide(
                                           color: expense.fixed
                                               ? defaultColorScheme.tertiary
-                                              : defaultColorScheme.secondary)
-                                    ],
-                                  ),
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    children: [
-                                      Flexible(
-                                        child: Text(
-                                          "${expense.title} - ${expense.name}",
-                                          overflow: TextOverflow.ellipsis,
+                                              : defaultColorScheme.secondary,
+                                          width: 5)),
+                                ),
+                                padding: const EdgeInsets.all(7),
+                                margin: const EdgeInsets.fromLTRB(10, 0, 10, 10),
+                                child: Column(
+                                  children: [
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(
+                                          DateFormat('dd/MM/yyyy')
+                                              .format(expense.expenseDate),
                                           style: TextStyle(
-                                              fontSize: 14,
                                               color: expense.fixed
                                                   ? defaultColorScheme.tertiary
-                                                  : defaultColorScheme
-                                                      .secondary,
-                                              fontWeight: FontWeight.w400),
+                                                  : defaultColorScheme.secondary,
+                                              fontWeight: FontWeight.w500),
                                         ),
-                                      ),
-                                      Text(
-                                        NumberFormat.simpleCurrency(
-                                                locale: locale.languageCode)
-                                            .format(expense.value),
-                                        style: TextStyle(
-                                            fontSize: 17,
-                                            fontWeight: FontWeight.bold,
+                                        Icon(Icons.chevron_right,
+                                            size: 15,
                                             color: expense.fixed
                                                 ? defaultColorScheme.tertiary
-                                                : defaultColorScheme.secondary),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              )),
-                        );
-                      }),
+                                                : defaultColorScheme.secondary)
+                                      ],
+                                    ),
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      children: [
+                                        Flexible(
+                                          child: Text(
+                                            "${expense.title} - ${expense.name}",
+                                            overflow: TextOverflow.ellipsis,
+                                            style: TextStyle(
+                                                fontSize: 14,
+                                                color: expense.fixed
+                                                    ? defaultColorScheme.tertiary
+                                                    : defaultColorScheme
+                                                        .secondary,
+                                                fontWeight: FontWeight.w400),
+                                          ),
+                                        ),
+                                        Text(
+                                          NumberFormat.simpleCurrency(
+                                                  locale: locale.languageCode)
+                                              .format(expense.value),
+                                          style: TextStyle(
+                                              fontSize: 17,
+                                              fontWeight: FontWeight.bold,
+                                              color: expense.fixed
+                                                  ? defaultColorScheme.tertiary
+                                                  : defaultColorScheme.secondary),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                )),
+                          );
+                        }
+                        ),
+                  ),
                 ],
               ))
         ],
       )),
-      bottomSheet: Container(
+      resizeToAvoidBottomInset: true,
+      extendBody: true,
+      bottomNavigationBar: Container(
         color: defaultColorScheme.onSurface,
         padding: const EdgeInsets.all(3),
         child: Row(
