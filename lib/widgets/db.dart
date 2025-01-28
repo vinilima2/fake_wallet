@@ -2,7 +2,7 @@ import 'package:fake_wallet/database.dart';
 import 'package:flutter/material.dart';
 
 class Db extends InheritedWidget {
-   Db({
+   const Db({
     super.key,
     required this.appDatabase,
     required super.child,

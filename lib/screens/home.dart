@@ -1,4 +1,3 @@
-import 'package:drift/drift.dart' as drift;
 import 'package:fake_wallet/database.dart';
 import 'package:fake_wallet/models/expense_model.dart';
 import 'package:fake_wallet/utils/database_utils.dart';
@@ -8,7 +7,6 @@ import 'package:fake_wallet/widgets/expense_form.dart';
 import 'package:fake_wallet/widgets/header.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:fake_wallet/utils/date_utils.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 
@@ -27,84 +25,23 @@ class _HomeState extends State<Home> {
   List<ExpenseData> expenses = [];
   List<CategoryData> categories = [];
   List<Map<String, dynamic>> finalList = [];
-  String monthAndYear = DateUtil.now();
   double totalValueExpenses = 0;
 
-  Future<void> listAllExpenses(String? date) async {
-    List<String> splitDate = (date ?? monthAndYear).split('/');
-    (widget.database.select(widget.database.expense)
-          ..where((tbl) {
-            return tbl.expenseDate.month.equals(int.parse(splitDate[0])) &
-                tbl.expenseDate.year.equals(int.parse(splitDate[1]));
-          })
-          ..orderBy([
-            (table) => drift.OrderingTerm.asc(table.fixed),
-            (table) => drift.OrderingTerm.desc(table.expenseDate)
-          ]))
-        .watch()
-        .listen((list) {
+  late DatabaseUtils db;
+
+  void insertExpense(ExpenseModel expenseModel) async {
+    context.loaderOverlay.show();
+    await db.insertExpense(expenseModel);
+    if (mounted) {
+      Navigator.of(context).pop();
+      context.loaderOverlay.hide();
+    }
+    db.listAllExpenses(null).then((list) {
       setState(() {
         expenses = list;
       });
       calculateCharts();
-    }, onDone: () {
-      reassemble();
     });
-  }
-
-  Future<void> listAllCategories() async {
-    var list = await widget.database.select(widget.database.category).get();
-    if (list.isEmpty) {
-      DatabaseUtils db = DatabaseUtils(database: widget.database);
-      db.seedDatabaseWithCategories(context);
-      listAllCategories();
-    }
-    setState(() {
-      categories = list;
-    });
-  }
-
-  void insertExpense(ExpenseModel expenseModel) async {
-    context.loaderOverlay.show();
-    await widget.database.into(widget.database.expense).insert(
-        ExpenseCompanion.insert(
-            title: expenseModel.title,
-            name: expenseModel.name,
-            value: double.parse(expenseModel.value
-                .replaceAll('.', '')
-                .replaceFirst(',', '.')
-                .replaceAll(RegExp(r"[^\d.]+"), '')),
-            fixed: expenseModel.fixed,
-            createdAt: DateTime.now(),
-            expenseDate: DateFormat('dd/MM/yyyy').parse(expenseModel.expenseDate),
-            category: expenseModel.category));
-
-    if (expenseModel.fixed) {
-      await insertFixedExpense(expenseModel);
-    }
-    Navigator.of(context).pop();
-    context.loaderOverlay.hide();
-    listAllExpenses(null);
-  }
-
-  Future<void> insertFixedExpense(ExpenseModel expenseModel) async {
-    DateTime actualDateTime =
-        DateFormat('dd/MM/yyyy').parse(expenseModel.expenseDate);
-    for (int i = 1; i <= expenseModel.numberMonthsOfFixedExpense; i++) {
-      await widget.database.into(widget.database.expense).insert(
-          ExpenseCompanion.insert(
-              title: expenseModel.title,
-              name: expenseModel.name,
-              value: double.parse(expenseModel.value
-                  .replaceAll('.', '')
-                  .replaceFirst(',', '.')
-                  .replaceAll(RegExp(r"[^\d.]+"), '')),
-              fixed: expenseModel.fixed,
-              createdAt: DateTime.now(),
-              expenseDate: actualDateTime.copyWith(
-                  day: 1, month: actualDateTime.month + i),
-              category: expenseModel.category));
-    }
   }
 
   Future<void> calculateCharts() async {
@@ -132,11 +69,8 @@ class _HomeState extends State<Home> {
               .where((expense) => expense.category == category.id)
               .toList();
 
-          var totalValueExpensesPerCategory = expensesPerCategory.isNotEmpty
-              ? expensesPerCategory
-                  .map((expense) => expense.value)
-                  .reduce((current, preview) => (current) + (preview))
-              : 0;
+          var totalValueExpensesPerCategory = expensesPerCategory.fold(
+              0.0, (sum, expense) => sum + expense.value);
 
           var percentage =
               (totalValueExpensesPerCategory * 100) / (totalValueExpenses);
@@ -157,9 +91,25 @@ class _HomeState extends State<Home> {
     context.loaderOverlay.hide();
   }
 
+  void initHome() async {
+    db = await DatabaseUtils.init(widget.database);
+    db.listAllCategories(context).then((list) {
+      setState(() {
+        categories = list;
+      });
+
+      db.listAllExpenses(null).then((list) {
+        setState(() {
+          expenses = list;
+        });
+        calculateCharts();
+      });
+    });
+  }
+
   @override
   void initState() {
-    listAllCategories().then((c) => listAllExpenses(null));
+    initHome();
     super.initState();
   }
 
@@ -191,8 +141,8 @@ class _HomeState extends State<Home> {
                           fontSize: 20),
                       content: ExpenseForm(
                           key: const Key('expense_form'),
-                          onSave: (ex) {
-                            insertExpense(ex);
+                          onSave: (expense) {
+                            insertExpense(expense);
                           },
                           categories: categories),
                     );
@@ -208,9 +158,10 @@ class _HomeState extends State<Home> {
               ? TextButton(
                   onPressed: () async {
                     context.loaderOverlay.show();
-                    await ExportUtils()
-                        .exportToXLSX(context, monthAndYear, expenses);
-                    context.loaderOverlay.hide();
+                    await ExportUtils().exportToXLSX(context, expenses);
+                    if (mounted) {
+                      context.loaderOverlay.hide();
+                    }
                   },
                   child: Icon(
                     Icons.share,
@@ -224,7 +175,12 @@ class _HomeState extends State<Home> {
           child: Column(
         children: [
           Header(callback: (date) {
-            listAllExpenses(date);
+            db.listAllExpenses(date).then((list) {
+              setState(() {
+                expenses = list;
+              });
+              calculateCharts();
+            });
           }),
           SizedBox(
             height: 250,
@@ -234,7 +190,7 @@ class _HomeState extends State<Home> {
           ),
           const Divider(height: 5),
           Container(
-              padding: EdgeInsets.all(5),
+              padding: const EdgeInsets.all(5),
               height: 500,
               child: Column(
                 // crossAxisAlignment: CrossAxisAlignment.start,
@@ -377,7 +333,7 @@ class _HomeState extends State<Home> {
       )),
       bottomSheet: Container(
         color: defaultColorScheme.onSurface,
-        padding: EdgeInsets.all(3),
+        padding: const EdgeInsets.all(3),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [

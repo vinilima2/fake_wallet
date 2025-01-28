@@ -20,7 +20,6 @@ class ExpenseForm extends StatefulWidget {
 
 class _ExpenseFormState extends State<ExpenseForm> {
   ExpenseModel expense = ExpenseModel();
-
   @override
   Widget build(BuildContext context) {
     final defaultColorScheme = Theme.of(context).colorScheme;
@@ -33,7 +32,7 @@ class _ExpenseFormState extends State<ExpenseForm> {
           child: Column(
             children: [
               DropdownMenu<CategoryData>(
-                key: Key('category'),
+                key: const Key('category'),
                 width: 250,
                 initialSelection: null,
                 requestFocusOnTap: false,
@@ -52,7 +51,7 @@ class _ExpenseFormState extends State<ExpenseForm> {
                       label: category.description,
                       labelWidget: Row(
                         children: [
-                          Icon(IconData(DatabaseUtils.iconMap[category.icon]! as int,
+                          Icon(IconData(DatabaseUtils.invertedIconMap[category.icon]!,
                               fontFamily: 'MaterialIcons'), color: defaultColorScheme.onSurface,),
                           Text(category.description)
                         ],
@@ -60,7 +59,7 @@ class _ExpenseFormState extends State<ExpenseForm> {
                 }).toList(),
               ),
               TextFormField(
-                key: Key('title'),
+                key: const Key('title'),
                 textCapitalization: TextCapitalization.characters,
                 initialValue: expense.title,
                 onChanged: (text) => expense.title = text,
@@ -70,7 +69,7 @@ class _ExpenseFormState extends State<ExpenseForm> {
                     labelText: AppLocalizations.of(context)!.title),
               ),
               TextFormField(
-                key: Key('name'),
+                key: const Key('name'),
                 textCapitalization: TextCapitalization.characters,
                 initialValue: expense.name,
                 onChanged: (text) => expense.name = text,
@@ -81,7 +80,7 @@ class _ExpenseFormState extends State<ExpenseForm> {
                 height: 20,
               ),
               TextFormField(
-                key: Key('value'),
+                key: const Key('value'),
                 initialValue: expense.value,
                 onChanged: (text) => expense.value = text,
                 inputFormatters: [
@@ -94,7 +93,7 @@ class _ExpenseFormState extends State<ExpenseForm> {
                     labelText: AppLocalizations.of(context)!.value),
               ),
               TextFormField(
-                key: Key('expenseDate'),
+                key: const Key('expenseDate'),
                 initialValue: expense.expenseDate,
                 onChanged: (text) => expense.expenseDate = text,
                 inputFormatters: [
@@ -132,14 +131,14 @@ class _ExpenseFormState extends State<ExpenseForm> {
                     )
                   : Container(),
               FilledButton(
-                key: Key('saveButton'),
+                key: const Key('saveButton'),
                 onPressed: () {
                   widget.onSave(expense);
                 },
                 style: ButtonStyle(
                     backgroundColor:
                         WidgetStatePropertyAll(defaultColorScheme.onSurface),
-                    fixedSize: MaterialStatePropertyAll(Size(1000, 50))),
+                    fixedSize: const WidgetStatePropertyAll(Size(1000, 50))),
                 child: Text(AppLocalizations.of(context)!.save, style: TextStyle(color: defaultColorScheme.surface),),
               )
             ],

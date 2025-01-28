@@ -33,10 +33,10 @@ class _HeaderState extends State<Header> {
           onPressed: () => addOrSubstractMonth(add: false),
         ),
         Container(
-          padding: EdgeInsets.all(5),
+          padding: const EdgeInsets.all(5),
           decoration: BoxDecoration(
               color: defaultColorScheme.onSurface,
-              borderRadius: BorderRadius.all(Radius.circular(5))),
+              borderRadius: const BorderRadius.all(Radius.circular(5))),
           child: Text(
             literal(),
             style: TextStyle(

@@ -1,4 +1,5 @@
 import 'package:fake_wallet/utils/database_utils.dart';
+import 'package:fake_wallet/utils/theme_utils.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 
@@ -12,25 +13,11 @@ class Chart extends StatefulWidget {
 }
 
 class _ChartState extends State<Chart> {
-  static const List<MaterialColor> colors = [
-    Colors.green,
-    Colors.amber,
-    Colors.red,
-    Colors.orange,
-    Colors.blue,
-    Colors.pink,
-    Colors.grey,
-    Colors.cyan,
-    Colors.indigo,
-    Colors.purple,
-    Colors.brown
-  ];
-
   int touchedIndex = -1;
 
   List<PieChartSectionData> showingSections() {
-     final defaultColorScheme = Theme.of(context).colorScheme;
-     
+    final defaultColorScheme = Theme.of(context).colorScheme;
+
     return widget.expenses.map((i) {
       final isTouched = widget.expenses.indexOf(i) == touchedIndex;
       final fontSize = isTouched ? 16.0 : 14.0;
@@ -38,9 +25,11 @@ class _ChartState extends State<Chart> {
       const shadows = [Shadow(color: Colors.black, blurRadius: 2)];
 
       return PieChartSectionData(
-        color: isTouched ? Colors.black : colors[widget.expenses.indexOf(i)],
+        color: isTouched
+            ? Colors.black
+            : ThemeUtils.chartColors[widget.expenses.indexOf(i)],
         value: i['percentage'],
-        title: i['percentage'].toString() + '%',
+        title: '${i['percentage']}%',
         radius: radius,
         titleStyle: TextStyle(
           fontSize: fontSize,
@@ -49,12 +38,13 @@ class _ChartState extends State<Chart> {
           shadows: shadows,
         ),
         badgeWidget: Container(
-          padding: EdgeInsets.all(5),
+          padding: const EdgeInsets.all(5),
           decoration: BoxDecoration(
               color: defaultColorScheme.onSurface,
-              borderRadius: BorderRadius.all(Radius.circular(20))),
+              borderRadius: const BorderRadius.all(Radius.circular(20))),
           child: Icon(
-            IconData(DatabaseUtils.iconMap[i['icon']]! as int, fontFamily: 'MaterialIcons'),
+            IconData(DatabaseUtils.invertedIconMap[i['icon']]!,
+                fontFamily: 'MaterialIcons'),
             color: defaultColorScheme.surface,
           ),
         ),
@@ -65,7 +55,7 @@ class _ChartState extends State<Chart> {
 
   @override
   Widget build(BuildContext context) {
-    return widget.expenses.length > 0
+    return widget.expenses.isNotEmpty
         ? PieChart(
             PieChartData(
               pieTouchData: PieTouchData(
@@ -89,7 +79,7 @@ class _ChartState extends State<Chart> {
               centerSpaceRadius: 5,
               sections: showingSections(),
             ),
-            swapAnimationDuration: Duration(seconds: 3),
+            swapAnimationDuration: const Duration(seconds: 3),
           )
         : Image.asset('assets/pork.gif');
   }

@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:excel/excel.dart';
 import 'package:fake_wallet/database.dart';
+import 'package:fake_wallet/utils/date_utils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:intl/intl.dart';
@@ -10,23 +11,25 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:share_plus/share_plus.dart';
 
 class ExportUtils {
-  Future<void> exportToXLSX(BuildContext context, String monthAndYear,
-      List<ExpenseData> expenses) async {
-    List<int>? fileBytes = await getSheet(context, monthAndYear, expenses);
+  Future<void> exportToXLSX(
+      BuildContext context, List<ExpenseData> expenses) async {
+    List<int>? fileBytes = await getSheet(context, expenses);
     Directory directory = await saveFileTemporary(fileBytes);
-    await Share.shareXFiles([XFile("${directory.path}/temp-file.xlsx")]);
+    await Share.shareXFiles([
+      XFile("${directory.path}/${DateUtils.now().replaceAll('/', '_')}.xlsx")
+    ]);
   }
 
   Future<Directory> saveFileTemporary(List<int>? fileBytes) async {
     final directory = await getApplicationDocumentsDirectory();
-    File("${directory.path}/temp-file.xlsx")
+    File("${directory.path}/${DateUtils.now().replaceAll('/', '_')}.xlsx")
       ..createSync(recursive: true)
       ..writeAsBytesSync(fileBytes!);
     return directory;
   }
 
-  Future<List<int>?> getSheet(BuildContext context, String monthAndYear,
-      List<ExpenseData> expenses) async {
+  Future<List<int>?> getSheet(
+      BuildContext context, List<ExpenseData> expenses) async {
     var excel = Excel.createExcel();
     final Locale locale = Localizations.localeOf(context);
 
@@ -42,7 +45,7 @@ class ExportUtils {
 
     var cell = sheetObject.cell(CellIndex.indexByString('A1'));
     cell.value = TextCellValue(
-        '${AppLocalizations.of(context)!.expense} - $monthAndYear');
+        '${AppLocalizations.of(context)!.expense} - ${DateUtils.now()}');
     cell.cellStyle = cellStyle;
 
     excel.merge(
@@ -57,7 +60,7 @@ class ExportUtils {
       TextCellValue(AppLocalizations.of(context)!.category),
     ]);
 
-    expenses.forEach((expense) {
+    for (var expense in expenses) {
       excel.appendRow(excel.getDefaultSheet()!, [
         TextCellValue(expense.title),
         TextCellValue(DateFormat('dd/MM/yyyy').format(expense.expenseDate)),
@@ -65,7 +68,7 @@ class ExportUtils {
             .format(expense.value)),
         IntCellValue(expense.category)
       ]);
-    });
+    }
 
     var status = await Permission.storage.status;
     if (status.isDenied) await Permission.storage.request();
