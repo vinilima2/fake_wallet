@@ -27,7 +27,7 @@ class _ExpenseFormState extends State<ExpenseForm> {
       child: SingleChildScrollView(
         child: SizedBox(
           width: 250,
-          height: 500,
+          height: 550,
           // color: Colors.white,
           child: Column(
             children: [

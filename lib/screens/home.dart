@@ -221,11 +221,14 @@ class _HomeState extends State<Home> {
                             onResize: () {
                               widget.database
                                   .delete(widget.database.expense)
-                                  .deleteReturning(expense);
-                              Alert().showMessage(
-                                  context,
-                                  AppLocalizations.of(context)!.successDelete,
-                                  AlertType.SUCCESS);
+                                  .deleteReturning(expense)
+                                  .whenComplete(() async {
+                                Alert().showMessage(
+                                    context,
+                                    AppLocalizations.of(context)!.successDelete,
+                                    AlertType.SUCCESS);
+                                await calculateCharts();
+                              });
                             },
                             direction: DismissDirection.startToEnd,
                             confirmDismiss: (direction) async {
