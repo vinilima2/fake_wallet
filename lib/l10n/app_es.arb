@@ -31,5 +31,7 @@
   "coffee": "Café",
   "another": "Otro",
   "health": "Salud",
-    "numberOfMonth":"Numero de Meses"
+  "numberOfMonth":"Numero de Meses",
+  "successSave":"Gasto guardado exitosamente",
+  "successDelete":"Gasto eliminado exitosamente"
 }

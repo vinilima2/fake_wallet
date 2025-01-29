@@ -31,5 +31,7 @@
   "coffee": "Coffee",
   "another": "Another",
   "health": "Health",
-  "numberOfMonth":"Number of Months"
+  "numberOfMonth":"Number of Months",
+  "successSave":"Expense saved successfully",
+  "successDelete":"Successfully deleted expense"
 }

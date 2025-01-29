@@ -3,6 +3,7 @@ import 'package:fake_wallet/models/expense_model.dart';
 import 'package:fake_wallet/utils/database_utils.dart';
 import 'package:fake_wallet/utils/export_utils.dart';
 import 'package:fake_wallet/utils/date_utils.dart' as myDateUtils;
+import 'package:fake_wallet/widgets/alert.dart';
 import 'package:fake_wallet/widgets/chart.dart';
 import 'package:fake_wallet/widgets/expense_form.dart';
 import 'package:fake_wallet/widgets/header.dart';
@@ -37,6 +38,8 @@ class _HomeState extends State<Home> {
     if (mounted) {
       Navigator.of(context).pop();
       context.loaderOverlay.hide();
+      Alert().showMessage(context, AppLocalizations.of(context)!.successSave,
+          AlertType.SUCCESS);
     }
     db.listAllExpenses(monthAndYear).then((list) {
       setState(() {
@@ -219,6 +222,10 @@ class _HomeState extends State<Home> {
                               widget.database
                                   .delete(widget.database.expense)
                                   .deleteReturning(expense);
+                              Alert().showMessage(
+                                  context,
+                                  AppLocalizations.of(context)!.successDelete,
+                                  AlertType.SUCCESS);
                             },
                             direction: DismissDirection.startToEnd,
                             confirmDismiss: (direction) async {
@@ -228,8 +235,9 @@ class _HomeState extends State<Home> {
                                     return AlertDialog(
                                       title: Text(AppLocalizations.of(context)!
                                           .attention),
-                                      content: Text(AppLocalizations.of(context)!
-                                          .removeQuestion),
+                                      content: Text(
+                                          AppLocalizations.of(context)!
+                                              .removeQuestion),
                                       actions: <Widget>[
                                         TextButton(
                                           style: TextButton.styleFrom(
@@ -250,7 +258,8 @@ class _HomeState extends State<Home> {
                                                 .labelLarge,
                                           ),
                                           child: Text(
-                                              AppLocalizations.of(context)!.yes),
+                                              AppLocalizations.of(context)!
+                                                  .yes),
                                           onPressed: () {
                                             Navigator.of(context).pop(true);
                                           },
@@ -273,7 +282,8 @@ class _HomeState extends State<Home> {
                                           width: 5)),
                                 ),
                                 padding: const EdgeInsets.all(7),
-                                margin: const EdgeInsets.fromLTRB(10, 0, 10, 10),
+                                margin:
+                                    const EdgeInsets.fromLTRB(10, 0, 10, 10),
                                 child: Column(
                                   children: [
                                     Row(
@@ -286,7 +296,8 @@ class _HomeState extends State<Home> {
                                           style: TextStyle(
                                               color: expense.fixed
                                                   ? defaultColorScheme.tertiary
-                                                  : defaultColorScheme.secondary,
+                                                  : defaultColorScheme
+                                                      .secondary,
                                               fontWeight: FontWeight.w500),
                                         ),
                                         Icon(Icons.chevron_right,
@@ -309,7 +320,8 @@ class _HomeState extends State<Home> {
                                             style: TextStyle(
                                                 fontSize: 14,
                                                 color: expense.fixed
-                                                    ? defaultColorScheme.tertiary
+                                                    ? defaultColorScheme
+                                                        .tertiary
                                                     : defaultColorScheme
                                                         .secondary,
                                                 fontWeight: FontWeight.w400),
@@ -324,15 +336,15 @@ class _HomeState extends State<Home> {
                                               fontWeight: FontWeight.bold,
                                               color: expense.fixed
                                                   ? defaultColorScheme.tertiary
-                                                  : defaultColorScheme.secondary),
+                                                  : defaultColorScheme
+                                                      .secondary),
                                         ),
                                       ],
                                     ),
                                   ],
                                 )),
                           );
-                        }
-                        ),
+                        }),
                   ),
                 ],
               ))

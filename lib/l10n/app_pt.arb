@@ -31,5 +31,7 @@
   "coffee": "Café",
   "another": "Outro",
   "health": "Saúde",
-  "numberOfMonth":"Número de Meses"
+  "numberOfMonth":"Número de Meses",
+  "successSave":"Despesa salva com sucesso",
+  "successDelete":"Despesa deletada com sucesso"
 }
