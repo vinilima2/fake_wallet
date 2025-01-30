@@ -139,6 +139,7 @@ class _HomeState extends State<Home> {
                   context: context,
                   builder: (builder) {
                     return AlertDialog(
+                      backgroundColor: defaultColorScheme.onSecondary,
                       title: Text(AppLocalizations.of(context)!.newExpense),
                       titleTextStyle: TextStyle(
                           fontWeight: FontWeight.bold,
@@ -218,17 +219,18 @@ class _HomeState extends State<Home> {
                         itemBuilder: (BuildContext context, int indice) {
                           var expense = expenses[indice];
                           return Dismissible(
-                            onResize: () {
-                              widget.database
-                                  .delete(widget.database.expense)
-                                  .deleteReturning(expense)
-                                  .whenComplete(() async {
-                                Alert().showMessage(
-                                    context,
-                                    AppLocalizations.of(context)!.successDelete,
-                                    AlertType.SUCCESS);
-                                await calculateCharts();
+                            key: Key(expense.id.toString()),
+                            onDismissed: (DismissDirection direction) async {
+                              Alert().showMessage(
+                                  context,
+                                  AppLocalizations.of(context)!.successDelete,
+                                  AlertType.SUCCESS);
+                              setState(() {
+                                expenses = expenses
+                                    .where((e) => e.id != expense.id)
+                                    .toList();
                               });
+                              await calculateCharts();
                             },
                             direction: DismissDirection.startToEnd,
                             confirmDismiss: (direction) async {
@@ -265,13 +267,15 @@ class _HomeState extends State<Home> {
                                                   .yes),
                                           onPressed: () {
                                             Navigator.of(context).pop(true);
+                                            widget.database
+                                                .delete(widget.database.expense)
+                                                .deleteReturning(expense);
                                           },
                                         ),
                                       ],
                                     );
                                   });
                             },
-                            key: Key(expense.name),
                             child: Container(
                                 decoration: BoxDecoration(
                                   color: expense.fixed
