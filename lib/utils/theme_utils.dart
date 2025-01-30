@@ -6,11 +6,11 @@ class ThemeUtils {
       primary: Colors.blue.shade900,
       onPrimary: Colors.blue.shade900,
       secondary: Colors.blue.shade700,
-      onSecondary: Colors.lightBlue.shade100,
+      onSecondary: const Color.fromARGB(255, 229, 248, 253),
       tertiary: Colors.amberAccent.shade400,
       onTertiary: Colors.yellow.shade200,
-      error: Colors.blue.shade900,
-      onError: Colors.blue.shade900,
+      error: Colors.redAccent.shade700,
+      onError: Colors.redAccent.shade700,
       surface: Colors.white,
       onSurface: Colors.blue.shade900);
 
@@ -19,11 +19,11 @@ class ThemeUtils {
       primary: Colors.blue.shade800,
       onPrimary: Colors.blue.shade800,
       secondary: Colors.blue.shade600,
-      onSecondary: Colors.blueGrey.shade900,
+      onSecondary: Colors.grey.shade900,
       tertiary: Colors.amberAccent.shade700,
       onTertiary: const Color.fromARGB(255, 137, 137, 2),
-      error: Colors.blue.shade800,
-      onError: Colors.blue.shade800,
+      error: Colors.redAccent.shade700,
+      onError: Colors.redAccent.shade700,
       surface: Colors.black,
       onSurface: Colors.blue.shade800);
 

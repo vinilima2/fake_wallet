@@ -33,5 +33,6 @@
   "health": "Health",
   "numberOfMonth":"Number of Months",
   "successSave":"Expense saved successfully",
-  "successDelete":"Successfully deleted expense"
+  "successDelete":"Successfully deleted expense",
+  "validateMessage":"This field needs to be filled in"
 }

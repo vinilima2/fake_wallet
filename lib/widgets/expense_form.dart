@@ -20,10 +20,15 @@ class ExpenseForm extends StatefulWidget {
 
 class _ExpenseFormState extends State<ExpenseForm> {
   ExpenseModel expense = ExpenseModel();
+  String? dropdownMessage;
+  final _formKey = GlobalKey<FormState>();
+
   @override
   Widget build(BuildContext context) {
     final defaultColorScheme = Theme.of(context).colorScheme;
     return Form(
+      key: _formKey,
+      autovalidateMode: AutovalidateMode.onUnfocus,
       child: SingleChildScrollView(
         child: SizedBox(
           width: 250,
@@ -33,26 +38,34 @@ class _ExpenseFormState extends State<ExpenseForm> {
             children: [
               DropdownMenu<CategoryData>(
                 key: const Key('category'),
+                errorText: dropdownMessage,
                 width: 250,
                 initialSelection: null,
                 requestFocusOnTap: false,
                 label: Text(AppLocalizations.of(context)!.category),
                 onSelected: (CategoryData? category) {
                   expense.category = category!.id;
+                  setState(() {
+                    dropdownMessage = null;
+                  });
                 },
                 dropdownMenuEntries: widget.categories
                     .map<DropdownMenuEntry<CategoryData>>(
                         (CategoryData category) {
                   return DropdownMenuEntry<CategoryData>(
                       style: ButtonStyle(
-                          backgroundColor:
-                              WidgetStatePropertyAll(defaultColorScheme.surface)),
+                          backgroundColor: WidgetStatePropertyAll(
+                              defaultColorScheme.surface)),
                       value: category,
                       label: category.description,
                       labelWidget: Row(
                         children: [
-                          Icon(IconData(DatabaseUtils.invertedIconMap[category.icon]!,
-                              fontFamily: 'MaterialIcons'), color: defaultColorScheme.onSurface,),
+                          Icon(
+                            IconData(
+                                DatabaseUtils.invertedIconMap[category.icon]!,
+                                fontFamily: 'MaterialIcons'),
+                            color: defaultColorScheme.onSurface,
+                          ),
                           Text(category.description)
                         ],
                       ));
@@ -67,6 +80,12 @@ class _ExpenseFormState extends State<ExpenseForm> {
                 decoration: InputDecoration(
                     counterText: '',
                     labelText: AppLocalizations.of(context)!.title),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return AppLocalizations.of(context)!.validateMessage;
+                  }
+                  return null;
+                },
               ),
               TextFormField(
                 key: const Key('name'),
@@ -75,6 +94,12 @@ class _ExpenseFormState extends State<ExpenseForm> {
                 onChanged: (text) => expense.name = text,
                 decoration: InputDecoration(
                     labelText: AppLocalizations.of(context)!.description),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return AppLocalizations.of(context)!.validateMessage;
+                  }
+                  return null;
+                },
               ),
               Container(
                 height: 20,
@@ -91,6 +116,12 @@ class _ExpenseFormState extends State<ExpenseForm> {
                     const TextInputType.numberWithOptions(decimal: true),
                 decoration: InputDecoration(
                     labelText: AppLocalizations.of(context)!.value),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return AppLocalizations.of(context)!.validateMessage;
+                  }
+                  return null;
+                },
               ),
               TextFormField(
                 key: const Key('expenseDate'),
@@ -103,11 +134,18 @@ class _ExpenseFormState extends State<ExpenseForm> {
                 keyboardType: TextInputType.datetime,
                 decoration: InputDecoration(
                     labelText: AppLocalizations.of(context)!.expenseDate),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return AppLocalizations.of(context)!.validateMessage;
+                  }
+                  return null;
+                },
               ),
               Row(
                 children: [
                   Checkbox(
                       focusColor: defaultColorScheme.onSurface,
+                      checkColor: defaultColorScheme.surface,
                       value: expense.fixed,
                       onChanged: (value) {
                         setState(() {
@@ -118,28 +156,44 @@ class _ExpenseFormState extends State<ExpenseForm> {
                 ],
               ),
               expense.fixed
-                  ? TextFormField(
-                      initialValue:
-                          expense.numberMonthsOfFixedExpense.toString(),
-                      onChanged: (text) => expense
-                          .numberMonthsOfFixedExpense = int.parse(text),
-                      keyboardType: TextInputType.number,
-                      maxLength: 2,
-                      decoration: InputDecoration(
-                          labelText:
-                              AppLocalizations.of(context)!.numberOfMonth),
+                  ? Container(
+                      margin: const EdgeInsets.only(bottom: 10),
+                      child: TextFormField(
+                        initialValue:
+                            expense.numberMonthsOfFixedExpense.toString(),
+                        onChanged: (text) => expense
+                            .numberMonthsOfFixedExpense = int.parse(text),
+                        keyboardType: TextInputType.number,
+                        maxLength: 2,
+                        decoration: InputDecoration(
+                            counterText: '',
+                            labelText:
+                                AppLocalizations.of(context)!.numberOfMonth),
+                      ),
                     )
                   : Container(),
               FilledButton(
                 key: const Key('saveButton'),
                 onPressed: () {
-                  widget.onSave(expense);
+                  if (expense.category == 0) {
+                    setState(() {
+                      dropdownMessage =
+                          AppLocalizations.of(context)!.validateMessage;
+                    });
+                    return;
+                  }
+                  if (_formKey.currentState!.validate()) {
+                    widget.onSave(expense);
+                  }
                 },
                 style: ButtonStyle(
                     backgroundColor:
                         WidgetStatePropertyAll(defaultColorScheme.onSurface),
                     fixedSize: const WidgetStatePropertyAll(Size(1000, 50))),
-                child: Text(AppLocalizations.of(context)!.save, style: TextStyle(color: defaultColorScheme.surface),),
+                child: Text(
+                  AppLocalizations.of(context)!.save,
+                  style: TextStyle(color: defaultColorScheme.surface),
+                ),
               )
             ],
           ),
