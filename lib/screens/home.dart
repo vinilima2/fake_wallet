@@ -93,6 +93,7 @@ class _HomeState extends State<Home> {
     setState(() {
       finalList = list;
     });
+    
     context.loaderOverlay.hide();
   }
 
@@ -205,7 +206,9 @@ class _HomeState extends State<Home> {
                 // crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    AppLocalizations.of(context)!.expense,
+                    (expenses.isNotEmpty)
+                        ? AppLocalizations.of(context)!.expense
+                        : AppLocalizations.of(context)!.emptyExpensesMessage,
                     style: TextStyle(
                         color: defaultColorScheme.onSurface,
                         fontWeight: FontWeight.bold,

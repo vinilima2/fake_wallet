@@ -34,5 +34,6 @@
   "numberOfMonth":"Número de Meses",
   "successSave":"Despesa salva com sucesso",
   "successDelete":"Despesa deletada com sucesso",
-  "validateMessage":"Este campo precisa ser preenchido"
+  "validateMessage":"Este campo precisa ser preenchido",
+  "emptyExpensesMessage":"Nada de novo por aqui"
 }

@@ -34,5 +34,6 @@
   "numberOfMonth":"Numero de Meses",
   "successSave":"Gasto guardado exitosamente",
   "successDelete":"Gasto eliminado exitosamente",
-  "validateMessage":"Este campo debe ser completado"
+  "validateMessage":"Este campo debe ser completado",
+  "emptyExpensesMessage":"Nada nuevo aquí"
 }
