@@ -18,6 +18,7 @@ class Category extends Table {
   IntColumn get id => integer().autoIncrement()();
   TextColumn get icon => text()();
   TextColumn get description => text()();
+  IntColumn get color => integer()();
 }
 
 @DriftDatabase(tables: [Expense, Category])

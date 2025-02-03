@@ -29,8 +29,13 @@ class $CategoryTable extends Category
   late final GeneratedColumn<String> description = GeneratedColumn<String>(
       'description', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _colorMeta = const VerificationMeta('color');
   @override
-  List<GeneratedColumn> get $columns => [id, icon, description];
+  late final GeneratedColumn<int> color = GeneratedColumn<int>(
+      'color', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  @override
+  List<GeneratedColumn> get $columns => [id, icon, description, color];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -58,6 +63,12 @@ class $CategoryTable extends Category
     } else if (isInserting) {
       context.missing(_descriptionMeta);
     }
+    if (data.containsKey('color')) {
+      context.handle(
+          _colorMeta, color.isAcceptableOrUnknown(data['color']!, _colorMeta));
+    } else if (isInserting) {
+      context.missing(_colorMeta);
+    }
     return context;
   }
 
@@ -73,6 +84,8 @@ class $CategoryTable extends Category
           .read(DriftSqlType.string, data['${effectivePrefix}icon'])!,
       description: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}description'])!,
+      color: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}color'])!,
     );
   }
 
@@ -86,14 +99,19 @@ class CategoryData extends DataClass implements Insertable<CategoryData> {
   final int id;
   final String icon;
   final String description;
+  final int color;
   const CategoryData(
-      {required this.id, required this.icon, required this.description});
+      {required this.id,
+      required this.icon,
+      required this.description,
+      required this.color});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
     map['icon'] = Variable<String>(icon);
     map['description'] = Variable<String>(description);
+    map['color'] = Variable<int>(color);
     return map;
   }
 
@@ -102,6 +120,7 @@ class CategoryData extends DataClass implements Insertable<CategoryData> {
       id: Value(id),
       icon: Value(icon),
       description: Value(description),
+      color: Value(color),
     );
   }
 
@@ -112,6 +131,7 @@ class CategoryData extends DataClass implements Insertable<CategoryData> {
       id: serializer.fromJson<int>(json['id']),
       icon: serializer.fromJson<String>(json['icon']),
       description: serializer.fromJson<String>(json['description']),
+      color: serializer.fromJson<int>(json['color']),
     );
   }
   @override
@@ -121,14 +141,17 @@ class CategoryData extends DataClass implements Insertable<CategoryData> {
       'id': serializer.toJson<int>(id),
       'icon': serializer.toJson<String>(icon),
       'description': serializer.toJson<String>(description),
+      'color': serializer.toJson<int>(color),
     };
   }
 
-  CategoryData copyWith({int? id, String? icon, String? description}) =>
+  CategoryData copyWith(
+          {int? id, String? icon, String? description, int? color}) =>
       CategoryData(
         id: id ?? this.id,
         icon: icon ?? this.icon,
         description: description ?? this.description,
+        color: color ?? this.color,
       );
   CategoryData copyWithCompanion(CategoryCompanion data) {
     return CategoryData(
@@ -136,6 +159,7 @@ class CategoryData extends DataClass implements Insertable<CategoryData> {
       icon: data.icon.present ? data.icon.value : this.icon,
       description:
           data.description.present ? data.description.value : this.description,
+      color: data.color.present ? data.color.value : this.color,
     );
   }
 
@@ -144,55 +168,67 @@ class CategoryData extends DataClass implements Insertable<CategoryData> {
     return (StringBuffer('CategoryData(')
           ..write('id: $id, ')
           ..write('icon: $icon, ')
-          ..write('description: $description')
+          ..write('description: $description, ')
+          ..write('color: $color')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(id, icon, description);
+  int get hashCode => Object.hash(id, icon, description, color);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is CategoryData &&
           other.id == this.id &&
           other.icon == this.icon &&
-          other.description == this.description);
+          other.description == this.description &&
+          other.color == this.color);
 }
 
 class CategoryCompanion extends UpdateCompanion<CategoryData> {
   final Value<int> id;
   final Value<String> icon;
   final Value<String> description;
+  final Value<int> color;
   const CategoryCompanion({
     this.id = const Value.absent(),
     this.icon = const Value.absent(),
     this.description = const Value.absent(),
+    this.color = const Value.absent(),
   });
   CategoryCompanion.insert({
     this.id = const Value.absent(),
     required String icon,
     required String description,
+    required int color,
   })  : icon = Value(icon),
-        description = Value(description);
+        description = Value(description),
+        color = Value(color);
   static Insertable<CategoryData> custom({
     Expression<int>? id,
     Expression<String>? icon,
     Expression<String>? description,
+    Expression<int>? color,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (icon != null) 'icon': icon,
       if (description != null) 'description': description,
+      if (color != null) 'color': color,
     });
   }
 
   CategoryCompanion copyWith(
-      {Value<int>? id, Value<String>? icon, Value<String>? description}) {
+      {Value<int>? id,
+      Value<String>? icon,
+      Value<String>? description,
+      Value<int>? color}) {
     return CategoryCompanion(
       id: id ?? this.id,
       icon: icon ?? this.icon,
       description: description ?? this.description,
+      color: color ?? this.color,
     );
   }
 
@@ -208,6 +244,9 @@ class CategoryCompanion extends UpdateCompanion<CategoryData> {
     if (description.present) {
       map['description'] = Variable<String>(description.value);
     }
+    if (color.present) {
+      map['color'] = Variable<int>(color.value);
+    }
     return map;
   }
 
@@ -216,7 +255,8 @@ class CategoryCompanion extends UpdateCompanion<CategoryData> {
     return (StringBuffer('CategoryCompanion(')
           ..write('id: $id, ')
           ..write('icon: $icon, ')
-          ..write('description: $description')
+          ..write('description: $description, ')
+          ..write('color: $color')
           ..write(')'))
         .toString();
   }
@@ -655,11 +695,13 @@ typedef $$CategoryTableCreateCompanionBuilder = CategoryCompanion Function({
   Value<int> id,
   required String icon,
   required String description,
+  required int color,
 });
 typedef $$CategoryTableUpdateCompanionBuilder = CategoryCompanion Function({
   Value<int> id,
   Value<String> icon,
   Value<String> description,
+  Value<int> color,
 });
 
 final class $$CategoryTableReferences
@@ -699,6 +741,11 @@ class $$CategoryTableFilterComposer
       builder: (column, joinBuilders) =>
           ColumnFilters(column, joinBuilders: joinBuilders));
 
+  ColumnFilters<int> get color => $state.composableBuilder(
+      column: $state.table.color,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
   ComposableFilter expenseRefs(
       ComposableFilter Function($$ExpenseTableFilterComposer f) f) {
     final $$ExpenseTableFilterComposer composer = $state.composerBuilder(
@@ -730,6 +777,11 @@ class $$CategoryTableOrderingComposer
       column: $state.table.description,
       builder: (column, joinBuilders) =>
           ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<int> get color => $state.composableBuilder(
+      column: $state.table.color,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
 }
 
 class $$CategoryTableTableManager extends RootTableManager<
@@ -755,21 +807,25 @@ class $$CategoryTableTableManager extends RootTableManager<
             Value<int> id = const Value.absent(),
             Value<String> icon = const Value.absent(),
             Value<String> description = const Value.absent(),
+            Value<int> color = const Value.absent(),
           }) =>
               CategoryCompanion(
             id: id,
             icon: icon,
             description: description,
+            color: color,
           ),
           createCompanionCallback: ({
             Value<int> id = const Value.absent(),
             required String icon,
             required String description,
+            required int color,
           }) =>
               CategoryCompanion.insert(
             id: id,
             icon: icon,
             description: description,
+            color: color,
           ),
           withReferenceMapper: (p0) => p0
               .map((e) =>

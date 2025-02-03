@@ -85,7 +85,8 @@ class _HomeState extends State<Home> {
             'id': category.id,
             'description': category.description,
             'icon': category.icon,
-            'percentage': double.parse(percentage.toStringAsFixed(2))
+            'percentage': double.parse(percentage.toStringAsFixed(2)),
+            'color': category.color
           };
         })
         .where((item) => (item['percentage']! as double) > 0)

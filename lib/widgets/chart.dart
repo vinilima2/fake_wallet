@@ -28,7 +28,7 @@ class _ChartState extends State<Chart> {
       return PieChartSectionData(
         color: isTouched
             ? Colors.black
-            : ThemeUtils.chartColors[widget.expenses.indexOf(i)],
+            : Color(i['color']),
         value: i['percentage'],
         title: '${i['percentage']}%',
         radius: radius,

@@ -40,4 +40,23 @@ class ThemeUtils {
     Colors.purple,
     Colors.brown
   ];
+
+  static List<int> categoriesColor = [
+    Colors.green.value,
+    Colors.amber.value,
+    Colors.red.value,
+    Colors.orange.value,
+    Colors.blue.value,
+    Colors.pink.value,
+    Colors.grey.value,
+    Colors.cyan.value,
+    Colors.indigo.value,
+    Colors.purple.value,
+    Colors.brown.value,
+    Colors.yellow.value,
+    Colors.lime.value,
+    Colors.teal.value,
+    Colors.lightGreen.value,
+    Colors.pink.shade100.value
+  ];
 }
