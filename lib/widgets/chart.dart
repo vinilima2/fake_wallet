@@ -5,8 +5,9 @@ import 'package:flutter/material.dart';
 
 class Chart extends StatefulWidget {
   final List<Map<String, dynamic>> expenses;
+  final Function(int) onChangeCategory;
 
-  const Chart({super.key, required this.expenses});
+  const Chart({super.key, required this.expenses, required this.onChangeCategory});
 
   @override
   State<StatefulWidget> createState() => _ChartState();
@@ -57,7 +58,7 @@ class _ChartState extends State<Chart> {
   Widget build(BuildContext context) {
     return widget.expenses.isNotEmpty
         ? PieChart(
-            PieChartData(
+            PieChartData(        
               pieTouchData: PieTouchData(
                 touchCallback: (FlTouchEvent event, pieTouchResponse) {
                   setState(() {
@@ -69,7 +70,9 @@ class _ChartState extends State<Chart> {
                     }
                     touchedIndex =
                         pieTouchResponse.touchedSection!.touchedSectionIndex;
+                        widget.onChangeCategory(widget.expenses[touchedIndex]['id']);
                   });
+
                 },
               ),
               borderData: FlBorderData(
@@ -79,7 +82,7 @@ class _ChartState extends State<Chart> {
               centerSpaceRadius: 5,
               sections: showingSections(),
             ),
-            swapAnimationDuration: const Duration(seconds: 3),
+            swapAnimationDuration: const Duration(seconds: 2),
           )
         : Image.asset('assets/pork.gif');
   }

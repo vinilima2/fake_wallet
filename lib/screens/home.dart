@@ -28,6 +28,7 @@ class _HomeState extends State<Home> {
   List<CategoryData> categories = [];
   List<Map<String, dynamic>> finalList = [];
   String monthAndYear = myDateUtils.DateUtils.now();
+  int? selectedCategory;
   double totalValueExpenses = 0;
 
   late DatabaseUtils db;
@@ -41,7 +42,7 @@ class _HomeState extends State<Home> {
       Alert().showMessage(context, AppLocalizations.of(context)!.successSave,
           AlertType.SUCCESS);
     }
-    db.listAllExpenses(monthAndYear).then((list) {
+    db.listAllExpensesPerDate(monthAndYear).then((list) {
       setState(() {
         expenses = list;
       });
@@ -93,7 +94,7 @@ class _HomeState extends State<Home> {
     setState(() {
       finalList = list;
     });
-    
+
     context.loaderOverlay.hide();
   }
 
@@ -104,7 +105,7 @@ class _HomeState extends State<Home> {
         categories = list;
       });
 
-      db.listAllExpenses(monthAndYear).then((list) {
+      db.listAllExpensesPerDate(monthAndYear).then((list) {
         setState(() {
           expenses = list;
         });
@@ -185,7 +186,7 @@ class _HomeState extends State<Home> {
             setState(() {
               monthAndYear = date;
             });
-            db.listAllExpenses(date).then((list) {
+            db.listAllExpensesPerDate(date).then((list) {
               setState(() {
                 expenses = list;
               });
@@ -196,6 +197,32 @@ class _HomeState extends State<Home> {
             height: 250,
             child: Chart(
               expenses: finalList,
+              onChangeCategory: (category) {
+                if (selectedCategory == category) {
+                  setState(() {
+                    selectedCategory = null;
+                  });
+                  db.listAllExpensesPerDate(monthAndYear).then((list) {
+                    setState(() {
+                      expenses = list;
+                    });
+                    calculateCharts();
+                  });
+                } else {
+                  setState(() {
+                    selectedCategory = category;
+                  });
+
+                  db
+                      .listAllExpensesPerCategoryAndDate(category, monthAndYear)
+                      .then((list) {
+                    setState(() {
+                      expenses = list;
+                    });
+                    calculateCharts();
+                  });
+                }
+              },
             ),
           ),
           const Divider(height: 5),
@@ -206,9 +233,15 @@ class _HomeState extends State<Home> {
                 // crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    (expenses.isNotEmpty)
-                        ? AppLocalizations.of(context)!.expense
-                        : AppLocalizations.of(context)!.emptyExpensesMessage,
+                    selectedCategory != null
+                        ? categories
+                            .where((c) => c.id == selectedCategory!)
+                            .map((c) => c.description)
+                            .first
+                        : (expenses.isNotEmpty)
+                            ? AppLocalizations.of(context)!.expense
+                            : AppLocalizations.of(context)!
+                                .emptyExpensesMessage,
                     style: TextStyle(
                         color: defaultColorScheme.onSurface,
                         fontWeight: FontWeight.bold,

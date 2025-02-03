@@ -131,12 +131,28 @@ static const Map<String, int> invertedIconMap = {
     }
   }
 
-  Future<List<ExpenseData>> listAllExpenses(String? date) async {
+  Future<List<ExpenseData>> listAllExpensesPerDate(String? date) async {
     List<String> splitDate = (date ?? myDateUtils.DateUtils.now()).split('/');
     return (database.select(database.expense)
           ..where((tbl) {
             return tbl.expenseDate.month.equals(int.parse(splitDate[0])) &
                 tbl.expenseDate.year.equals(int.parse(splitDate[1]));
+          })
+          ..orderBy([
+            (table) => drift.OrderingTerm.asc(table.fixed),
+            (table) => drift.OrderingTerm.desc(table.expenseDate)
+          ]))
+        .get();
+  }
+
+
+    Future<List<ExpenseData>> listAllExpensesPerCategoryAndDate(int category, String? date) async {
+    List<String> splitDate = (date ?? myDateUtils.DateUtils.now()).split('/');
+    return (database.select(database.expense)
+          ..where((tbl) {
+            return tbl.expenseDate.month.equals(int.parse(splitDate[0])) &
+                tbl.expenseDate.year.equals(int.parse(splitDate[1]))
+                & tbl.category.equals(category);
           })
           ..orderBy([
             (table) => drift.OrderingTerm.asc(table.fixed),
