@@ -2,6 +2,9 @@
 
 ![Logo Application](android/app/src/main/res/mipmap-xxhdpi/ic_launcher_foreground.png)
 
+**Why Fake Wallet ?**
+ Wallet guards money, right? The fake wallet you guard the lost money.
+
 **Fake Wallet** is an Android/iOS application built using Flutter that allows users to track and manage their expenses offline. With features like expense categorization, interactive charts, XLS export, and more, **Fake Wallet** is a convenient solution for users who want to track their spending habits while ensuring privacy and ease of use.
 
 ## Features
@@ -25,8 +28,8 @@ To get started with **Fake Wallet** on your local machine:
 1. **Clone the repository:**
 
     ```bash
-    git clone https://github.com/your-username/fake-wallet.git
-    cd fake-wallet
+    git clone https://github.com/vinilima2/fake_wallet.git
+    cd fake_wallet
     ```
 
 2. **Install dependencies:**
