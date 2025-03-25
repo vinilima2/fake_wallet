@@ -3,7 +3,7 @@
 ![Logo Application](android/app/src/main/res/mipmap-xxhdpi/ic_launcher_foreground.png)
 
 **Why Fake Wallet ?**
- Wallet guards money, right? The fake wallet you guard the lost money.
+  Why Fake Wallet? Wallet keeps money, right? Fake wallet keeps lost money.
 
 **Fake Wallet** is an Android/iOS application built using Flutter that allows users to track and manage their expenses offline. With features like expense categorization, interactive charts, XLS export, and more, **Fake Wallet** is a convenient solution for users who want to track their spending habits while ensuring privacy and ease of use.
 
